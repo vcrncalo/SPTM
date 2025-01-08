@@ -1,5 +1,7 @@
 # Simulacije procesa u telekomunikacijskim mrežama - Dizajn i implementacija TOR modela u NS-3 simulatoru
 
+---
+
 ## Opis projekta
 
 U ns-3 simulatoru je potrebno kreirati TOR mrežu i simulirati istu. 
@@ -13,6 +15,8 @@ U ns-3 simulatoru je potrebno kreirati TOR mrežu i simulirati istu.
 - **Odredište** - Predstavlja posljedni čvor u mreži koji prima pakete i naposljetku ih obrađuje.
 
 Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kreiranje 7 čvorova, njihovo povezivanje u lanac, dodjeljivanje IP adresa tim čvorovima i postavljanje klijent-server aplikacije. Podaci su šifrirani pomoću AES-256-CBC enkripcijskog algoritma što omogućava OpenSSL-ova EVP biblioteka na svakom skoku. Simulacija prati protok paketa, računa mrežnu statistiku poput kašnjenja i omjera poslanih paketa, te vizualizira mrežu pomoću NetAnim alata (kreira se xml datoteka s nazivom tor-network-visualization.xml na kojoj su prikazani svi čvorovi). Također, ovaj kod omogućuje ispis statistike po čvoru. Simulacija traje deset sekundi.
+
+---
 
 ## Simulacija
 
@@ -50,15 +54,15 @@ Slika 4: Mrežna statistika
 
 Kod za simulaciju TOR mreže u ns-3 simulatoru omogućava i kreiranje xml datoteke koja se može otvoriti u **NetAnim** softveru koji omogućava prikaz animacije mreže. 
 
-*Na četvrtoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
+*Na petoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_početak_simulacije.png alt="NetAnim_početak_simulacije">
 <br>
 Slika 5: NetAnim - Početak simulacije
 </p>
 
-*Na petoj slici je prikazan završetak simulacije u NetAnim-u:*
+*Na šestoj slici je prikazan završetak simulacije u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_završetak_simulacije.png alt="NetAnim_završetak_simulacije">
-Slika 5: NetAnim - Početak simulacije
+Slika 6: NetAnim - Početak simulacije
 </p>
