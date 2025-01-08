@@ -21,53 +21,53 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 *U nastavku je objašnjen način funkcionisanja TOR mreže implementirane u ns-3 simulatoru:*
 
 1. **Arhitektura simulacije**  
-Simulacija uključuje 7 čvorova: klijent, ulazni čvor (Entry), tri čvora za releje (Relay 1, Relay 2, Relay 3), izlazni čvor (Exit), i krajnji odredišni čvor (Destination). Ova topologija imitira TOR mrežnu strukturu, gdje klijent šalje podatke kroz šifrirane kanale, prolazeći kroz više releja prije nego što stigne do odredišta.  
-**Mrežna topologija:**  
-- TOR Klijent šalje podatke kroz Entry Guard (ulazni čvor).  
-- Podaci se šifriraju i prolaze kroz releje (Relay 1, Relay 2, Relay 3).  
-- Na kraju, podaci izlaze kroz izlazni čvor i stižu do odredišnog čvora.  
-**Povezivanje čvorova:**  
-- Svaka veza između čvorova je ostvarena pomoću *PointToPointHelper*-a, koji koristi TCP/IP protokol i P2P (point-to-point) mreže za prijenos podataka.  
-- Svaka veza između čvorova je podešena sa *DataRate*-om (brzina prijenosa podataka) i *Delay*-om (kašnjenjem).  
+    Simulacija uključuje 7 čvorova: klijent, ulazni čvor (Entry), tri čvora za releje (Relay 1, Relay 2, Relay 3), izlazni čvor (Exit), i krajnji odredišni čvor (Destination). Ova topologija imitira TOR mrežnu strukturu, gdje klijent šalje podatke kroz šifrirane kanale, prolazeći kroz više releja prije nego što stigne do odredišta.  
+    1.1 **Mrežna topologija:**  
+    - TOR Klijent šalje podatke kroz Entry Guard (ulazni čvor).  
+    - Podaci se šifriraju i prolaze kroz releje (Relay 1, Relay 2, Relay 3).  
+    - Na kraju, podaci izlaze kroz izlazni čvor i stižu do odredišnog čvora.  
+    1.2 **Povezivanje čvorova:**  
+    - Svaka veza između čvorova je ostvarena pomoću *PointToPointHelper*-a, koji koristi TCP/IP protokol i P2P (point-to-point) mreže za prijenos podataka.  
+    - Svaka veza između čvorova je podešena sa *DataRate*-om (brzina prijenosa podataka) i *Delay*-om (kašnjenjem).  
 
 2. **Enkripcija i sigurnost**  
-Jedan od ključnih aspekata TOR mreže je višeslojna enkripcija, što je implementirano pomoću OpenSSL EVP (Encryption/Decryption API) enkripcijskog algoritma. Kod koristi AES 256-bitnu CBC enkripciju za zaštitu podataka na svakom "skoku" u mreži.  
-**Ključne funkcije enkripcije:**  
-- **Generisanje ključeva:** Svaka enkripcijska sesija koristi nasumično generisane ključeve pomoću OpenSSL funkcije `RAND_bytes`.  
-- **Šifriranje i dešifrovanje podataka:** Funkcije `EncryptLayer` i `DecryptLayer` omogućavaju višeslojnu enkripciju, gdje podaci prolaze kroz više slojeva šifriranja i dešifrovanja, što je karakteristično za TOR mrežu.  
-**TOR paket struktura:** Paketi u TOR mreži imaju proširenu strukturu koja omogućava praćenje stanja svakog paketa tokom putovanja kroz mrežu:  
-- `sequenceNumber`: Jedinstveni broj sekvence za svaki paket.  
-- `data`: Podaci u paketu.  
-- `encryptionLayer`: Indikator sloja enkripcije.  
-- `timestamp`: Vrijeme kada je paket kreiran.  
-- `hopCount`: Broj "skokova" kroz mrežu.  
-- `sourceNode` i `destinationNode`: Naziv izvorišnog i odredišnog čvora.  
-- `circuitId`: Identifikator TOR kruga.  
-- `isControl`: Ukazuje na to da li je paket kontrolni paket ili ne.  
-- `encryptionLayers`: Lista slojeva enkripcije na svakom skoku u mreži.  
+    Jedan od ključnih aspekata TOR mreže je višeslojna enkripcija, što je implementirano pomoću OpenSSL EVP (Encryption/Decryption API) enkripcijskog algoritma. Kod koristi AES 256-bitnu CBC enkripciju za zaštitu podataka na svakom "skoku" u mreži.  
+    2.1 **Ključne funkcije enkripcije:**  
+    - **Generisanje ključeva:** Svaka enkripcijska sesija koristi nasumično generisane ključeve pomoću OpenSSL funkcije `RAND_bytes`.  
+    - **Šifriranje i dešifrovanje podataka:** Funkcije `EncryptLayer` i `DecryptLayer` omogućavaju višeslojnu enkripciju, gdje podaci prolaze kroz više slojeva šifriranja i dešifrovanja, što je karakteristično za TOR mrežu.  
+    2.2 **TOR paket struktura:** Paketi u TOR mreži imaju proširenu strukturu koja omogućava praćenje stanja svakog paketa tokom putovanja kroz mrežu:  
+    - `sequenceNumber`: Jedinstveni broj sekvence za svaki paket.  
+    - `data`: Podaci u paketu.  
+    - `encryptionLayer`: Indikator sloja enkripcije.  
+    - `timestamp`: Vrijeme kada je paket kreiran.  
+    - `hopCount`: Broj "skokova" kroz mrežu.  
+    - `sourceNode` i `destinationNode`: Naziv izvorišnog i odredišnog čvora.  
+    - `circuitId`: Identifikator TOR kruga.  
+    - `isControl`: Ukazuje na to da li je paket kontrolni paket ili ne.  
+    - `encryptionLayers`: Lista slojeva enkripcije na svakom skoku u mreži.  
 
 3. **Simulacija i praćenje**  
-**Početak i kraj simulacije:**  
-- Simulacija traje 10 sekundi, s različitim vremenskim okvirom za početak i završetak aplikacija.  
-**Praćenje mreže (Flow monitoring):**  
-- Korišćen je *FlowMonitor* za praćenje statistike mrežnog saobraćaja, uključujući podatke o paketu (transmisija, prijem, gubici) i kašnjenju.  
-**Metrike i statistika:**  
-- **Omjer poslanih i primljenih paketa (Packet delivery ratio):** Pokazuje omjer primljenih i poslanih paketa, što je važan indikator efikasnosti mreže.  
-- **Delay:** Prosječno kašnjenje za primljene pakete.  
-- **Statistika za svaki čvor:** Svaki čvor u mreži ima opis i informacije o svom stanju.  
+    **Početak i kraj simulacije:**  
+    - Simulacija traje 10 sekundi, s različitim vremenskim okvirom za početak i završetak aplikacija.  
+    3.1 **Praćenje mreže (Flow monitoring):**  
+    - Korišćen je *FlowMonitor* za praćenje statistike mrežnog saobraćaja, uključujući podatke o paketu (transmisija, prijem, gubici) i kašnjenju.  
+    3.2 **Metrike i statistika:**  
+    - **Omjer poslanih i primljenih paketa (Packet delivery ratio):** Pokazuje omjer primljenih i poslanih paketa, što je važan indikator efikasnosti mreže.  
+    - **Delay:** Prosječno kašnjenje za primljene pakete.  
+    - **Statistika za svaki čvor:** Svaki čvor u mreži ima opis i informacije o svom stanju.  
 
 4. **Simulacija i vizualizacija**  
-**NetAnim:**  
-- Mreža je vizualizovana koristeći *NetAnim*, alat za animaciju mrežne topologije, koji prikazuje mrežnu topologiju i podatke o čvorovima.  
-- Boje čvorova su podešene tako da odražavaju njihove uloge (klijent, relays, izlaz, itd.).  
+    **NetAnim:**  
+    - Mreža je vizualizovana koristeći *NetAnim*, alat za animaciju mrežne topologije, koji prikazuje mrežnu topologiju i podatke o čvorovima.  
+    - Boje čvorova su podešene tako da odražavaju njihove uloge (klijent, relays, izlaz, itd.).  
 
 5. **Dizajn TOR mreže**  
-**Topologija čvorova:**  
-- Hijerarhija čvorova, kao što su ulazni čvor, releji, i izlazni čvor, simuliraju stvarni TOR dizajn.  
-**Enkripcija:**  
-- Upotreba višeslojne enkripcije sa ključevima koji se rotiraju na svakom skoku.  
-**Anonimnost i sigurnost:**  
-- Paketima se dodaju razni podaci (npr., `hopCount`, `timestamp`, `encryptionLayer`) kako bi se simuliralo ponašanje TOR mreže koja pruža anonimnost.
+    5.1 **Topologija čvorova:**  
+    - Hijerarhija čvorova, kao što su ulazni čvor, releji, i izlazni čvor, simuliraju stvarni TOR dizajn.  
+    5.2 **Enkripcija:**  
+    - Upotreba višeslojne enkripcije sa ključevima koji se rotiraju na svakom skoku.  
+    5.3 **Anonimnost i sigurnost:**  
+    - Paketima se dodaju razni podaci (npr., `hopCount`, `timestamp`, `encryptionLayer`) kako bi se simuliralo ponašanje TOR mreže koja pruža anonimnost.
 
 ---
 
