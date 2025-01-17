@@ -117,5 +117,5 @@ Slika 5: NetAnim - Početak simulacije
 *Na šestoj slici je prikazan završetak simulacije u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_završetak_simulacije.png alt="NetAnim_završetak_simulacije">
-Slika 6: NetAnim - Početak simulacije
+Slika 6: NetAnim - Završetak simulacije
 </p>
