@@ -249,7 +249,9 @@ int main(int argc, char *argv[]) {
 
     CommandLine cmd;
     std::string initialData = "This is a test message";
+    double simulationTime = 10.0;
     cmd.AddValue("initialData", "Initial data for the packet", initialData);
+    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
     cmd.Parse(argc, argv);
 
     NodeContainer nodes;
@@ -334,11 +336,11 @@ int main(int argc, char *argv[]) {
     serverApps.Add(sinkHelper.Install(destinationNode)); // Only destination receives
 
     clientApps.Start(Seconds(1.0));
-    const double CLIENT_STOP_TIME = 9.0;
+    const double CLIENT_STOP_TIME = simulationTime - 2.0;
     clientApps.Stop(Seconds(CLIENT_STOP_TIME));
     const double SERVER_START_TIME = 0.0;
     serverApps.Start(Seconds(SERVER_START_TIME));
-    const double SERVER_STOP_TIME = 10.0;
+    const double SERVER_STOP_TIME = simulationTime;
     serverApps.Stop(Seconds(SERVER_STOP_TIME));
 
     // Visualization setup with limited trace file size
@@ -373,9 +375,6 @@ int main(int argc, char *argv[]) {
         Vector position = mobilityModel->GetPosition();
         NS_LOG_INFO("Node " << i << " Position: (" << position.x << ", " << position.y << ", " << position.z << ")");
     }
-
-    const double SIMULATION_STOP_TIME = 10.0;
-    Simulator::Stop(Seconds(SIMULATION_STOP_TIME));
 
     // Initialize encryption keys
     TOREncryption::InitializeKeys(6);
@@ -434,6 +433,8 @@ int main(int argc, char *argv[]) {
         }
  });
 
+    Simulator::Schedule(Seconds(simulationTime), &Simulator::Stop);
+
     Simulator::Run();
 
     // Print detailed statistics
@@ -489,6 +490,12 @@ NS_LOG_INFO("Total Received Packets: " << totalRxPackets);   // Total packets re
 NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
 NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay/totalRxPackets : 0) << " seconds");
 NS_LOG_INFO("Packet Delivery Ratio: " << (double)totalRxPackets/totalTxPackets * 100 << "%");
+    NS_LOG_INFO("Simulation Time: " << simulationTime << " seconds");
+
+    if (simulationTime < 3.0) {
+        NS_LOG_INFO("");
+	NS_LOG_INFO("Warning: The simulation time is less than 3 seconds. The network may not have had enough time to initialize properly.");
+    }
 
     Simulator::Destroy();
     return 0;
