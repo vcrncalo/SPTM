@@ -14,43 +14,47 @@
 #include <openssl/rand.h>
 #include <vector>
 #include <memory>
+#include <map>
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("TORNetworkExample");
+#include "TOR_packet.h"
 
-// Enhanced packet structure for TOR with additional fields
-struct TORPacket {
-    uint32_t sequenceNumber;
-    std::string data;
-    uint32_t encryptionLayer;
-    double timestamp;
-    uint32_t hopCount;
-    std::string sourceNode;
-    std::string destinationNode;
-    uint32_t circuitId;
-    bool isControl;
-    std::vector<std::string> encryptionLayers; // Store encryption at each hop
-};
+NS_LOG_COMPONENT_DEFINE("TORNetworkExample");
 
 class TORMonitor {
 public:
     static void PrintNodeStats(Ptr<Node> node, std::string description) {
         Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
         if (ipv4) {
-            std::cout << "\nNode " << node->GetId() << " (" << description << ") Statistics:" << std::endl;
+            NS_LOG_INFO("Node " << node->GetId() << " (" << description << ") Statistics:");
             for (uint32_t i = 0; i < ipv4->GetNInterfaces(); i++) {
-                std::cout << "  Interface " << i << ":" << std::endl;
-                std::cout << "    IP: " << ipv4->GetAddress(i, 0).GetLocal() << std::endl;
-                std::cout << "    Role: " << description << std::endl;
+                NS_LOG_INFO("  Interface " << i << ":");
+                for (uint32_t j = 0; j < ipv4->GetNAddresses(i); ++j) {
+                    Ipv4InterfaceAddress addr = ipv4->GetAddress(i, j);
+                    NS_LOG_INFO("    IP: " << addr.GetLocal());
+                }
             }
         }
     }
 };
 
+class TORCircuit {
+public:
+    std::vector<uint32_t> path;
+    std::vector<std::string> keys;
+    uint32_t circuitId;
+
+    TORCircuit(const std::vector<uint32_t>& path, const std::vector<std::string>& keys, uint32_t circuitId)
+        : path(path), keys(keys), circuitId(circuitId) {}
+};
+
+
 // Enhanced encryption with multiple layers and key rotation using OpenSSL EVP
 class TOREncryption {
-private:
+public:
+    static std::vector<std::string> keys;
+
     static std::string GenerateKey(int length = 32) {
         std::vector<unsigned char> key(length);
         RAND_bytes(key.data(), length);
@@ -58,96 +62,198 @@ private:
     }
 
 public:
+    static void InitializeKeys(int numLayers) {
+        keys.clear();
+        for (int i = 0; i < numLayers; ++i) {
+            keys.push_back(GenerateKey());
+        }
+    }
+
     static std::string EncryptLayer(const std::string &data, int layer) {
-        std::string key = GenerateKey();
+        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
+            throw std::runtime_error("Invalid layer");
+        }
+
         std::string encrypted;
-        
-        EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+
+        std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> ctx(EVP_CIPHER_CTX_new(), EVP_CIPHER_CTX_free);
         if(!ctx) {
-            return "";
-        }
-        
-        std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> ctx_ptr(ctx, EVP_CIPHER_CTX_free);
-
-
-        if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, (const unsigned char*)key.c_str(), (const unsigned char*)key.c_str())) {
-            return "";
+            throw std::runtime_error("TOREncryption::EncryptLayer: EVP_CIPHER_CTX_new failed");
         }
 
-        unsigned char *ciphertext = (unsigned char*)malloc(data.length() + EVP_MAX_BLOCK_LENGTH);
-        if(!ciphertext) {
-            return "";
+        if(1 != EVP_EncryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, (const unsigned char*)keys[layer].c_str(), (const unsigned char*)keys[layer].c_str())) {
+            throw std::runtime_error("TOREncryption::EncryptLayer: EVP_EncryptInit_ex failed");
         }
-        std::unique_ptr<unsigned char, decltype(&free)> ciphertext_ptr(ciphertext, free);
+
+        std::unique_ptr<unsigned char[]> ciphertext(new unsigned char[data.length() + EVP_MAX_BLOCK_LENGTH]);
         int ciphertext_len;
         int len;
 
-
-        if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, (const unsigned char*)data.c_str(), data.length())) {
-            return "";
+        if(1 != EVP_EncryptUpdate(ctx.get(), ciphertext.get(), &len, (const unsigned char*)data.c_str(), data.length())) {
+            throw std::runtime_error("TOREncryption::EncryptLayer: EVP_EncryptUpdate failed");
         }
         ciphertext_len = len;
 
-
-        if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) {
-            return "";
+        if(1 != EVP_EncryptFinal_ex(ctx.get(), ciphertext.get() + len, &len)) {
+            throw std::runtime_error("TOREncryption::EncryptFinal_ex failed");
         }
         ciphertext_len += len;
 
-        encrypted = std::string(reinterpret_cast<char*>(ciphertext), ciphertext_len);
+        encrypted = std::string(reinterpret_cast<char*>(ciphertext.get()), ciphertext_len);
 
         return encrypted;
     }
 
     static std::string DecryptLayer(const std::string &data, int layer) {
-        std::string key = GenerateKey();
+        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
+            throw std::runtime_error("Invalid layer");
+        }
+
         std::string decrypted;
 
-        EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+        std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> ctx(EVP_CIPHER_CTX_new(), EVP_CIPHER_CTX_free);
         if(!ctx) {
-            return "";
-        }
-        std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> ctx_ptr(ctx, EVP_CIPHER_CTX_free);
-
-
-        if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, (const unsigned char*)key.c_str(), (const unsigned char*)key.c_str())) {
-            return "";
+            throw std::runtime_error("TOREncryption::DecryptLayer: EVP_CIPHER_CTX_new failed");
         }
 
-        unsigned char *plaintext = (unsigned char*)malloc(data.length());
-        if(!plaintext) {
-            return "";
+        if(1 != EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, (const unsigned char*)keys[layer].c_str(), (const unsigned char*)keys[layer].c_str())) {
+           throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptInit_ex failed");
         }
-        std::unique_ptr<unsigned char, decltype(&free)> plaintext_ptr(plaintext, free);
+
+        std::unique_ptr<unsigned char[]> plaintext(new unsigned char[data.length()]);
         int plaintext_len;
         int len;
 
-
-        if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, (const unsigned char*)data.c_str(), data.length())) {
-            return "";
+        if(1 != EVP_DecryptUpdate(ctx.get(), plaintext.get(), &len, (const unsigned char*)data.c_str(), data.length())) {
+            throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptUpdate failed");
         }
         plaintext_len = len;
 
-
-        if(1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
-            return "";
+        if(1 != EVP_DecryptFinal_ex(ctx.get(), plaintext.get() + len, &len)) {
+            throw std::runtime_error("TOREncryption::DecryptFinal_ex failed");
         }
         plaintext_len += len;
 
-        decrypted = std::string(reinterpret_cast<char*>(plaintext), plaintext_len);
+        decrypted = std::string(reinterpret_cast<char*>(plaintext.get()), plaintext_len);
 
         return decrypted;
     }
 };
 
+std::vector<std::string> TOREncryption::keys;
+
+std::map<uint32_t, TORCircuit> circuits;
+
+void SendPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint16_t protocol) {
+    // Create a new packet
+    Ptr<Packet> p = Create<Packet>((uint8_t*)&packet, sizeof(packet));
+
+    // Get the IP address of the destination node
+    Ptr<Ipv4> ipv4 = toNode->GetObject<Ipv4>();
+    Ipv4Address destAddr = ipv4->GetAddress(1, 0).GetLocal();
+
+    // Create a socket for sending the packet
+    TypeId tid = TypeId::LookupByName("ns3::TcpSocketFactory");
+    if (protocol == 17) {
+        tid = TypeId::LookupByName("ns3::UdpSocketFactory");
+    }
+    Ptr<Socket> socket = Socket::CreateSocket(fromNode, tid);
+
+    // Connect the socket to the destination address and port
+    Ptr<Ipv4> fromIpv4 = fromNode->GetObject<Ipv4>();
+    if (protocol == 6) {
+        socket->Connect(InetSocketAddress(destAddr, 9001));
+    } else if (protocol == 17) {
+        socket->Connect(InetSocketAddress(destAddr, 9002));
+    }
+
+    // Send the packet
+    socket->Send(p);
+}
+
+void PrintPacketHeader(const TORPacket& packet) {
+    NS_LOG_INFO("Packet Header Data:");
+    NS_LOG_INFO("  Sequence Number: " << packet.sequenceNumber);
+    NS_LOG_INFO("  Encryption Layer: " << packet.encryptionLayer);
+    NS_LOG_INFO("  Timestamp: " << packet.timestamp);
+    NS_LOG_INFO("  Hop Count: " << packet.hopCount);
+    NS_LOG_INFO("  Source Node: " << packet.sourceNode);
+    NS_LOG_INFO("  Destination Node: " << packet.destinationNode);
+    NS_LOG_INFO("  Circuit ID: " << packet.circuitId);
+    NS_LOG_INFO("  Is Control: " << (packet.isControl ? "Yes" : "No"));
+    NS_LOG_INFO("  Protocol: " << packet.protocol);
+    NS_LOG_INFO("  Route: ");
+    for (auto nodeId : packet.route) {
+        NS_LOG_INFO("    Node " << nodeId);
+    }
+}
+
+void TORPacket::EncryptPacket(const std::string& key) {
+    data = TOREncryption::EncryptLayer(data, encryptionLayer);
+}
+
+void TORPacket::DecryptPacket(const std::string& key) {
+    data = TOREncryption::DecryptLayer(data, encryptionLayer);
+}
+
+bool ExitNodePolicy(const TORPacket& packet, uint32_t destinationNodeId) {
+    // Example policy: Only allow packets to the destination node (node ID 6)
+    if (packet.destinationNode == "Destination" && destinationNodeId == 6) {
+        return true;
+    }
+    return false;
+}
+
+void ProcessHop(TORPacket& packet, int layer, const std::vector<std::string>& keys, uint32_t nodeId) {
+    if (layer < 0 || layer >= static_cast<int>(keys.size())) {
+        NS_LOG_ERROR("Invalid layer: " << layer);
+        return;
+    }
+    packet.encryptionLayer = layer;
+    packet.DecryptPacket(keys[layer]);
+    NS_LOG_INFO("Packet Data after Decryption at Layer " << layer << ": " << packet.data);
+
+    packet.hopCount++;
+    if (layer + 1 < static_cast<int>(keys.size())) {
+        packet.encryptionLayer = layer + 1;
+        packet.EncryptPacket(keys[layer + 1]);
+        NS_LOG_INFO("Packet Data after Encryption at Layer " << layer + 1 << ": " << packet.data);
+    }
+    packet.route.push_back(nodeId);
+
+    // Forward the packet to the next node in the path
+    if (layer + 1 < static_cast<int>(keys.size())) {
+        auto circuit_it = circuits.find(packet.circuitId);
+        if (circuit_it == circuits.end()) {
+            NS_LOG_ERROR("Circuit not found: " << packet.circuitId);
+            return;
+        }
+        const TORCircuit& circuit = circuit_it->second;
+        uint32_t nextNodeId = circuit.path[layer + 1];
+        Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+        Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
+        SendPacket(fromNode, toNode, packet, packet.protocol);
+    }
+}
+
+TORCircuit CreateCircuit(uint32_t circuitId, const std::vector<uint32_t>& path, int numLayers) {
+    std::vector<std::string> keys;
+    for (int i = 0; i < numLayers; ++i) {
+        keys.push_back(TOREncryption::GenerateKey());
+    }
+    return TORCircuit(path, keys, circuitId);
+}
+
 int main(int argc, char *argv[]) {
     LogComponentEnable("TORNetworkExample", LOG_LEVEL_INFO);
-    
+
     CommandLine cmd;
+    std::string initialData = "This is a test message";
+    cmd.AddValue("initialData", "Initial data for the packet", initialData);
     cmd.Parse(argc, argv);
 
     NodeContainer nodes;
-    nodes.Create(7); // 7 nodes: Client, Entry, 3 Relays, Exit, Destination
+    nodes.Create(7);
 
     // Set up node positions
     MobilityHelper mobility;
@@ -208,31 +314,37 @@ int main(int argc, char *argv[]) {
     uint16_t port = 9001;
 
     // Configure client applications with encryption
-    OnOffHelper clientHelper("ns3::TcpSocketFactory", 
+    // Configure client applications with encryption
+    OnOffHelper clientHelper("ns3::TcpSocketFactory",
                            InetSocketAddress(interfaces6.GetAddress(1), port));
     clientHelper.SetAttribute("DataRate", StringValue("5Mbps"));
-    clientHelper.SetAttribute("PacketSize", UintegerValue(1000)); // Smaller packets
+    clientHelper.SetAttribute("PacketSize", UintegerValue(1000));
     clientHelper.SetAttribute("OnTime", StringValue("ns3::ExponentialRandomVariable[Mean=1]"));
     clientHelper.SetAttribute("OffTime", StringValue("ns3::ExponentialRandomVariable[Mean=0.1]"));
-    
+
     ApplicationContainer clientApps;
-    clientApps.Add(clientHelper.Install(nodes.Get(0)));
+    Ptr<Node> clientNode = nodes.Get(0);
+    clientApps.Add(clientHelper.Install(clientNode));
 
     PacketSinkHelper sinkHelper("ns3::TcpSocketFactory",
                               InetSocketAddress(Ipv4Address::GetAny(), port));
-    
+
     ApplicationContainer serverApps;
-    serverApps.Add(sinkHelper.Install(nodes.Get(6))); // Only destination receives
+    Ptr<Node> destinationNode = nodes.Get(6);
+    serverApps.Add(sinkHelper.Install(destinationNode)); // Only destination receives
 
     clientApps.Start(Seconds(1.0));
-    clientApps.Stop(Seconds(9.0));
-    serverApps.Start(Seconds(0.0));
-    serverApps.Stop(Seconds(10.0));
+    const double CLIENT_STOP_TIME = 9.0;
+    clientApps.Stop(Seconds(CLIENT_STOP_TIME));
+    const double SERVER_START_TIME = 0.0;
+    serverApps.Start(Seconds(SERVER_START_TIME));
+    const double SERVER_STOP_TIME = 10.0;
+    serverApps.Stop(Seconds(SERVER_STOP_TIME));
 
     // Visualization setup with limited trace file size
     AnimationInterface anim("tor-network-visualization.xml");
     anim.SetMaxPktsPerTraceFile(1000000); // Limit trace file size
-    
+
     // Node roles and colors
     std::vector<std::pair<std::string, std::vector<uint32_t>>> nodeRoles = {
         {"TOR Client", {255, 0, 0}},
@@ -244,18 +356,84 @@ int main(int argc, char *argv[]) {
         {"Destination", {255, 255, 0}}
     };
 
+    NS_LOG_INFO("================ NODE DATA ================");
     // Set node colors and descriptions
     for (uint32_t i = 0; i < nodes.GetN(); ++i) {
         auto& role = nodeRoles[i];
         anim.UpdateNodeColor(nodes.Get(i), role.second[0], role.second[1], role.second[2]);
         anim.UpdateNodeDescription(nodes.Get(i), role.first);
         TORMonitor::PrintNodeStats(nodes.Get(i), role.first);
+        NS_LOG_INFO(""); // Add a new line between nodes
     }
 
-    anim.EnablePacketMetadata(true);
-    // anim.EnableIpv4RouteTracking("tor-routes.xml", Seconds(0), Seconds(22)); // Removed route tracking
+    // Print node positions
+    NS_LOG_INFO("================ NODE POSITIONS ================");
+    for (uint32_t i = 0; i < nodes.GetN(); ++i) {
+        Ptr<MobilityModel> mobilityModel = nodes.Get(i)->GetObject<MobilityModel>();
+        Vector position = mobilityModel->GetPosition();
+        NS_LOG_INFO("Node " << i << " Position: (" << position.x << ", " << position.y << ", " << position.z << ")");
+    }
 
-    Simulator::Stop(Seconds(10.0));
+    const double SIMULATION_STOP_TIME = 10.0;
+    Simulator::Stop(Seconds(SIMULATION_STOP_TIME));
+
+    // Initialize encryption keys
+    TOREncryption::InitializeKeys(6);
+
+    // Create a circuit
+    std::vector<uint32_t> circuitPath = {0, 1, 2, 3, 4, 5, 6};
+    TORCircuit circuit = CreateCircuit(123, circuitPath, 6);
+    circuits.emplace(circuit.circuitId, circuit);
+
+    // Simulate packet transmission and encryption
+    Simulator::Schedule(Seconds(2.0), [&](){
+        // Create a TOR packet
+        TORPacket packet;
+        packet.sequenceNumber = 1;
+        packet.data = initialData;
+        packet.timestamp = Simulator::Now().GetSeconds();
+        packet.hopCount = 0;
+        packet.sourceNode = "Client";
+        packet.destinationNode = "Destination";
+        packet.circuitId = circuit.circuitId;
+        packet.isControl = false;
+        packet.protocol = 6; // TCP
+
+	NS_LOG_INFO("");
+        NS_LOG_INFO("================ PACKET DATA ==================");
+        NS_LOG_INFO("Original Packet Data: " << packet.data);
+
+        // Encrypt at client
+        packet.encryptionLayer = 0;
+        packet.EncryptPacket(circuit.keys[0]);
+        NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
+
+        // Simulate packet forwarding through the TOR network
+        Ptr<Node> clientNode = NodeList::GetNode(0);
+        Ptr<Node> entryNode = NodeList::GetNode(1);
+        SendPacket(clientNode, entryNode, packet, packet.protocol);
+        ProcessHop(packet, 0, circuit.keys, 1);
+        ProcessHop(packet, 1, circuit.keys, 2);
+        ProcessHop(packet, 2, circuit.keys, 3);
+        ProcessHop(packet, 3, circuit.keys, 4);
+        ProcessHop(packet, 4, circuit.keys, 5);
+
+        // Exit Node Policy Check
+        if (ExitNodePolicy(packet, 6)) {
+            // Decrypt at Destination
+            packet.encryptionLayer = 5;
+            packet.DecryptPacket(circuit.keys[5]);
+            NS_LOG_INFO("Packet Data after Destination Decryption: " << packet.data);
+            packet.hopCount++;
+            packet.route.push_back(6);
+            NS_LOG_INFO("");
+            PrintPacketHeader(packet);
+            NS_LOG_INFO("");
+        } else {
+            NS_LOG_INFO("Packet dropped at exit node due to policy.");
+        }
+ });
+
     Simulator::Run();
 
     // Print detailed statistics
@@ -263,32 +441,54 @@ int main(int argc, char *argv[]) {
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowHelper.GetClassifier());
     std::map<FlowId, FlowMonitor::FlowStats> stats = flowMonitor->GetFlowStats();
 
-    std::cout << "\n================ TOR NETWORK STATISTICS ================\n" << std::endl;
-    
-    // Print per-node statistics
-    for (uint32_t i = 0; i < nodes.GetN(); ++i) {
-        std::cout << "\nNode " << i << " (" << nodeRoles[i].first << "):" << std::endl;
-        TORMonitor::PrintNodeStats(nodes.Get(i), nodeRoles[i].first);
+    NS_LOG_INFO("================ TOR NETWORK STATISTICS ================");
+    NS_LOG_INFO("Verifying Flow Monitoring Configuration:");
+    NS_LOG_INFO("Flow Monitor: " << flowMonitor);
+    NS_LOG_INFO("Flow Classifier: " << classifier);
+    NS_LOG_INFO("Flow Stats: " << stats.size());
+    NS_LOG_INFO("");
+
+    // Print flow statistics
+    for (auto& stat : stats) {
+        NS_LOG_INFO("Flow ID: " << stat.first);
+        auto flow = classifier->FindFlow(stat.first);
+        NS_LOG_INFO("  Source Address: " << flow.sourceAddress);
+        NS_LOG_INFO("  Destination Address: " << flow.destinationAddress);
+        NS_LOG_INFO("  Protocol: " << (flow.protocol == 6 ? "TCP" : (flow.protocol == 17 ? "UDP" : "Unknown")));
+        NS_LOG_INFO("  Packets: " << stat.second.txPackets + stat.second.rxPackets);
+        NS_LOG_INFO("  Transmitted Packets: " << stat.second.txPackets);
+        NS_LOG_INFO("  Received Packets: " << stat.second.rxPackets);
+        NS_LOG_INFO("  Bytes: " << stat.second.txBytes + stat.second.rxBytes);
+        NS_LOG_INFO("  Transmitted Bytes: " << stat.second.txBytes);
+        NS_LOG_INFO("  Received Bytes: " << stat.second.rxBytes);
+        NS_LOG_INFO("  Delay: " << stat.second.delaySum.GetSeconds() / (stat.second.txPackets + stat.second.rxPackets) << " seconds");
+        NS_LOG_INFO("  Lost Packets: " << stat.second.lostPackets);
+        NS_LOG_INFO("  Packet Loss Rate: " << (double)stat.second.lostPackets / (stat.second.txPackets + stat.second.rxPackets) * 100 << "%");
+        NS_LOG_INFO("  Throughput: " << (stat.second.rxBytes * 8) / (stat.second.timeLastRxPacket.GetSeconds() - stat.second.timeFirstTxPacket.GetSeconds()) / 1000000 << " Mbps");
+        NS_LOG_INFO("  End-to-End Delay: " << stat.second.delaySum.GetSeconds() / stat.second.rxPackets << " seconds");
+        NS_LOG_INFO("");
     }
 
     // Calculate and print overall network statistics
-    uint64_t totalTxBytes = 0, totalRxBytes = 0;
-    uint32_t totalTxPackets = 0, totalRxPackets = 0;
-    double totalDelay = 0;
+uint64_t totalTxBytes = 0, totalRxBytes = 0;
+uint32_t totalTxPackets = 0, totalRxPackets = 0, totalLostPackets = 0;
+double totalDelay = 0;
 
-    for (auto& stat : stats) {
-        totalTxBytes += stat.second.txBytes;
-        totalRxBytes += stat.second.rxBytes;
-        totalTxPackets += stat.second.txPackets;
-        totalRxPackets += stat.second.rxPackets;
-        totalDelay += stat.second.delaySum.GetSeconds();
-    }
+for (auto& stat : stats) {
+    totalTxBytes += stat.second.txBytes; // Bytes transmitted by all sources
+    totalRxBytes += stat.second.rxBytes; // Bytes received by all destinations
+    totalTxPackets += stat.second.txPackets; // Packets transmitted by all sources
+    totalRxPackets += stat.second.rxPackets; // Packets received by all destinations
+    totalLostPackets += stat.second.lostPackets; // Total lost packets across all flows
+    totalDelay += stat.second.delaySum.GetSeconds(); // Sum of delays for all received packets
+}
 
-    std::cout << "\nOverall Network Statistics:" << std::endl;
-    std::cout << "Total Transmitted Packets: " << totalTxPackets << std::endl;
-    std::cout << "Total Received Packets: " << totalRxPackets << std::endl;
-    std::cout << "Average Delay: " << totalDelay/totalRxPackets << " seconds" << std::endl;
-    std::cout << "Packet Delivery Ratio: " << (double)totalRxPackets/totalTxPackets * 100 << "%" << std::endl;
+NS_LOG_INFO("Overall Network Statistics:");
+NS_LOG_INFO("Total Transmitted Packets: " << totalTxPackets); // Total packets transmitted by all source nodes
+NS_LOG_INFO("Total Received Packets: " << totalRxPackets);   // Total packets received by all destination nodes
+NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
+NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay/totalRxPackets : 0) << " seconds");
+NS_LOG_INFO("Packet Delivery Ratio: " << (double)totalRxPackets/totalTxPackets * 100 << "%");
 
     Simulator::Destroy();
     return 0;
