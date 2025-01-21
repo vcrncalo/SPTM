@@ -73,6 +73,16 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 
 ## Simulacija
 
+Simulacija se može pokrenuti koristeći sljedeće komande:
+
+```
+./ns3 run scratch/TOR_model.cc
+./ns3 run scratch/TOR_model.cc -- --initialData="Poruka"
+./ns3 run scratch/TOR_model.cc -- --simulationTime=10
+```
+
+Druga komanda omogućava promjenu poruke koju će koristiti u simulaciji, dok treća komanda omogućava izvršavanje simulacije za 10 sekundi.
+Bitno je napomenuti da, u slučaju promjene vremena trajanja simulacije na 2 sekunde ili manje, može doći do problema s inicijalizacijom mrežnog saobraćaja.
 ### Rezultati simulacije
 
 *Prilikom pokretanja simulacije, pojavljuje se detaljan ispis o čvorovima i njihovoj topologiji, podaci o paketima i mrežna statistika.*
@@ -95,8 +105,6 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 <br>
 Slika 3: Podaci o pozicijama čvorova i prikaz poruke prije i nakon enkripcije
 </p>
-
-Korisnik može promijenti poruku sljedećom komandom: `./ns3 run scratch/TOR_model.cc -- --initialData="Poruka"`
 
 Za enkripciju je potrebno instalirati OpenSSL biblioteku. To se može uraditi na sljedeći način (na Ubuntu sistemu):
 
