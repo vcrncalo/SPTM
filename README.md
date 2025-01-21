@@ -75,7 +75,7 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 
 ### Rezultati simulacije
 
-*Prilikom pokretanja simulacije, pojavljuju se sljedeći ispis sa podacima o čvorovima mreže, prikazan na slikama 1, 2 i 3:*
+*Prilikom pokretanja simulacije, pojavljuje se detaljan ispis o čvorovima i njihovoj topologiji, podaci o paketima i mrežna statistika.*
 
 <div align="center">
 <table>
@@ -84,8 +84,8 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
       		<td><img src="Slike/Simulacija_2.png" alt="Simulacija_2"></td>
     	</tr>
     	<tr>
-      		<td><p align="center">Slika 1: Podaci o čvorovima: 0, 1 i 2</p></td>
-      		<td><p align="center">Slika 2: Podaci o čvorovima: 3, 4 i 5</p></td>
+      		<td><p align="center">Slika 1: Podaci o čvorovima: 0, 1, 2 i 3</p></td>
+      		<td><p align="center">Slika 2: Podaci o čvorovima: 4, 5 i 6</p></td>
     	</tr>
 </table>
 </div>
@@ -93,29 +93,56 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 <p align="center">
 <img src=Slike/Simulacija_3.png alt="Simulacija_3">
 <br>
-Slika 3: Podaci o šestom čvoru mreže
+Slika 3: Podaci o pozicijama čvorova i prikaz poruke prije i nakon enkripcije
 </p>
 
-*Nakon tog ispisa, slijedi konačni ispis o broju poslatih i primljenih paketa, ukupnom kašnjenju i postotku primljenih paketa:*
+Korisnik može promijenti poruku sljedećom komandom: `./ns3 run scratch/TOR_model.cc -- --initialData="Poruka"`
 
-<p align="center"><img src=Slike/Simulacija_konačni_ispis.png alt="Simulacija_konačni_ispis">
+Za enkripciju je potrebno instalirati OpenSSL biblioteku. To se može uraditi na sljedeći način (na Ubuntu sistemu):
+
+```
+sudo apt update
+sudo apt install libssl-dev
+```
+
+Zatim, kreira se backup CMakeLists.txt datoteke i u datoteci se dodaje sljedeće linije:
+
+```
+find_package(OpenSSL REQUIRED)
+target_link_libraries(scratch ${OPENSSL_LIBRARIES})
+```
+
+<p align="center">
+<img src=Slike/Simulacija_4.png alt="Simulacija_4">
 <br>
-Slika 4: Mrežna statistika
+Slika 4: Podaci o zaglavlju paketa
+</p>
+
+<p align="center">
+<img src=Slike/Simulacija_5.png alt="Simulacija_5">
+<br>
+Slika 5: Podaci o mrežnim tokovima
+</p>
+
+<p align="center">
+<img src=Slike/Simulacija_6.png alt="Simulacija_6">
+<br>
+Slika 6: Podaci o ukupnom broju poslanih i primljenih paketa
 </p>
 
 ### NetAnim
 
 Kod za simulaciju TOR mreže u ns-3 simulatoru omogućava i kreiranje xml datoteke koja se može otvoriti u **NetAnim** softveru koji omogućava prikaz animacije mreže. 
 
-*Na petoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
+*Na sedmoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_početak_simulacije.png alt="NetAnim_početak_simulacije">
 <br>
-Slika 5: NetAnim - Početak simulacije
+Slika 7: NetAnim - Početak simulacije
 </p>
 
-*Na šestoj slici je prikazan završetak simulacije u NetAnim-u:*
+*Na osmoj slici je prikazan završetak simulacije u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_završetak_simulacije.png alt="NetAnim_završetak_simulacije">
-Slika 6: NetAnim - Završetak simulacije
+Slika 8: NetAnim - Završetak simulacije
 </p>
