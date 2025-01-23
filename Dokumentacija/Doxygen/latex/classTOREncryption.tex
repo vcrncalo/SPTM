@@ -1,0 +1,31 @@
+\hypertarget{classTOREncryption}{}\doxysection{TOREncryption Class Reference}
+\label{classTOREncryption}\index{TOREncryption@{TOREncryption}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classTOREncryption_a30c201377e7374a1b4de533badd063f1}\label{classTOREncryption_a30c201377e7374a1b4de533badd063f1}} 
+static void {\bfseries Initialize\+Keys} (int num\+Layers)
+\item 
+\mbox{\Hypertarget{classTOREncryption_a350232a028e1bde8ce8a3f99fc61146b}\label{classTOREncryption_a350232a028e1bde8ce8a3f99fc61146b}} 
+static std\+::string {\bfseries Generate\+Key} (int length=32)
+\item 
+\mbox{\Hypertarget{classTOREncryption_a19eda7ee6cc370506536432cc852fde5}\label{classTOREncryption_a19eda7ee6cc370506536432cc852fde5}} 
+static std\+::string {\bfseries Encrypt\+Layer} (const std\+::string \&data, int layer)
+\item 
+\mbox{\Hypertarget{classTOREncryption_affeed8685cfa3f41d2a9a8e8df06747a}\label{classTOREncryption_affeed8685cfa3f41d2a9a8e8df06747a}} 
+static std\+::unique\+\_\+ptr$<$ EVP\+\_\+\+CIPHER\+\_\+\+CTX, decltype(\&EVP\+\_\+\+CIPHER\+\_\+\+CTX\+\_\+free)$>$ {\bfseries Create\+Open\+SSLContext} (int layer, bool encrypt)
+\item 
+\mbox{\Hypertarget{classTOREncryption_a85c34773d183de98db6102b56f69563c}\label{classTOREncryption_a85c34773d183de98db6102b56f69563c}} 
+static std\+::string {\bfseries Decrypt\+Layer} (const std\+::string \&data, int layer)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classTOREncryption_ad5387d98f647e702119e349fb9d68298}\label{classTOREncryption_ad5387d98f647e702119e349fb9d68298}} 
+static std\+::vector$<$ std\+::string $>$ {\bfseries keys}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+TOR\+\_\+model.\+cc\end{DoxyCompactItemize}
