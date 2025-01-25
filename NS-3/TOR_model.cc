@@ -14,7 +14,6 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
-#include <openssl/evp.h>
 #include <vector>
 #include <memory>
 #include <map>
@@ -22,6 +21,7 @@
 using namespace ns3;
 
 #include "TOR_packet.h"
+#include "TOREncryption.h"
 
 NS_LOG_COMPONENT_DEFINE("TORNetworkExample");
 
@@ -61,142 +61,6 @@ public:
     TORCircuit(const std::vector<uint32_t>& path, const std::vector<std::string>& keys, uint32_t circuitId)
         : path(path), keys(keys), circuitId(circuitId) {}
 };
-
-// Enhanced encryption with multiple layers and key rotation using OpenSSL EVP
-class TOREncryption {
-public:
-    static std::vector<std::string> keys;
-
-    static void InitializeKeys(int numLayers) {
-        keys.clear();
-        for (int i = 0; i < numLayers; ++i) {
-            keys.push_back(GenerateKey());
-        }
-    }
-
-    static std::string GenerateKey(int length = 32) {
-        std::vector<unsigned char> key(length);
-        RAND_bytes(key.data(), length);
-        return std::string(reinterpret_cast<char*>(key.data()), length);
-    }
-
-    static std::string EncryptLayer(const std::string &data, int layer) {
-        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
-            throw std::runtime_error("Invalid layer");
-        }
-
-        NS_LOG_INFO("EncryptLayer input data (hex): ");
-        std::stringstream ss;
-        for (char c : data) {
-            ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(ss.str());
-        NS_LOG_INFO("EncryptLayer key (hex): ");
-        std::stringstream key_ss;
-        for (char c : keys[layer]) {
-            key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(key_ss.str());
-
-        std::string encrypted;
-
-        auto ctx = CreateOpenSSLContext(layer, true);
-
-        std::unique_ptr<unsigned char[]> ciphertext(new unsigned char[data.length() + EVP_MAX_BLOCK_LENGTH]);
-        int ciphertext_len;
-        int len;
-
-        if(1 != EVP_EncryptUpdate(ctx.get(), ciphertext.get(), &len, (const unsigned char*)data.c_str(), data.length())) {
-            throw std::runtime_error("TOREncryption::EncryptLayer: EVP_EncryptUpdate failed");
-        }
-        ciphertext_len = len;
-
-        if(1 != EVP_EncryptFinal_ex(ctx.get(), ciphertext.get() + len, &len)) {
-            throw std::runtime_error("TOREncryption::EncryptFinal_ex failed");
-        }
-        ciphertext_len += len;
-
-        encrypted = std::string(reinterpret_cast<char*>(ciphertext.get()), ciphertext_len);
-
-        NS_LOG_INFO("EncryptLayer output data (hex): ");
-        std::stringstream ss_out;
-        for (char c : encrypted) {
-            ss_out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(ss_out.str());
-
-        return encrypted;
-    }
-
-    static std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> CreateOpenSSLContext(int layer, bool encrypt) {
-        std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)> ctx(EVP_CIPHER_CTX_new(), EVP_CIPHER_CTX_free);
-        if(!ctx) {
-            throw std::runtime_error("CreateOpenSSLContext: EVP_CIPHER_CTX_new failed");
-        }
-
-        const unsigned char* key = (const unsigned char*)keys[layer].c_str();
-        if (encrypt) {
-            if(1 != EVP_EncryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, key, key)) {
-                throw std::runtime_error("CreateOpenSSLContext: EVP_EncryptInit_ex failed");
-            }
-        } else {
-            if(1 != EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, key, key)) {
-                throw std::runtime_error("CreateOpenSSLContext: EVP_DecryptInit_ex failed");
-            }
-        }
-        return ctx;
-    }
-
-    static std::string DecryptLayer(const std::string &data, int layer) {
-        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
-            throw std::runtime_error("Invalid layer");
-        }
-
-        NS_LOG_INFO("DecryptLayer input data (hex): ");
-        std::stringstream ss;
-        for (char c : data) {
-            ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(ss.str());
-        NS_LOG_INFO("DecryptLayer key (hex): ");
-        std::stringstream key_ss;
-        for (char c : keys[layer]) {
-            key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(key_ss.str());
-
-        std::string decrypted;
-
-        auto ctx = CreateOpenSSLContext(layer, false);
-
-        std::unique_ptr<unsigned char[]> plaintext(new unsigned char[data.length()]);
-        int plaintext_len;
-        int len;
-
-        if(1 != EVP_DecryptUpdate(ctx.get(), plaintext.get(), &len, (const unsigned char*)data.c_str(), data.length())) {
-            throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptUpdate failed");
-        }
-        plaintext_len = len;
-
-        if(1 != EVP_DecryptFinal_ex(ctx.get(), plaintext.get() + len, &len)) {
-            throw std::runtime_error("TOREncryption::DecryptFinal_ex failed");
-        }
-        plaintext_len += len;
-
-        decrypted = std::string(reinterpret_cast<char*>(plaintext.get()), plaintext_len);
-
-        NS_LOG_INFO("DecryptLayer output data (hex): ");
-        std::stringstream ss_out;
-        for (char c : decrypted) {
-            ss_out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-        }
-        NS_LOG_INFO(ss_out.str());
-
-        return decrypted;
-    }
-};
-
-std::vector<std::string> TOREncryption::keys;
 
 std::map<uint32_t, TORCircuit> circuits;
 
@@ -238,22 +102,44 @@ void PrintPacketHeader(const TORPacket& packet) {
     NS_LOG_INFO("  Destination Node: " << packet.destinationNode);
     NS_LOG_INFO("  Circuit ID: " << packet.circuitId);
     NS_LOG_INFO("  Is Control: " << (packet.isControl ? "Yes" : "No"));
+    NS_LOG_INFO("  Packet Size: " << packet.packetSize << " bytes");
+    NS_LOG_INFO("  Packet Type: " << (packet.packetType == DATA_PACKET ? "DATA" : (packet.packetType == CONTROL_PACKET ? "CONTROL" : "UNKNOWN")));
     NS_LOG_INFO("  Route: ");
-    for (uint32_t nodeId : packet.route) {
+     for (uint32_t nodeId : packet.route) {
         NS_LOG_INFO("    Node ID: " << nodeId);
     }
     NS_LOG_INFO("  Protocol: " << packet.protocol);
 }
 
-void TORPacket::EncryptPacket(const std::string& key) {
+void TORPacket::EncryptPacket() {
+    NS_LOG_INFO("=========================================");
+    NS_LOG_INFO("");
+    NS_LOG_INFO("Packet Data before Encryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("");
+    NS_LOG_INFO("=========================================");
     data = TOREncryption::EncryptLayer(data, currentLayer);
+    NS_LOG_INFO("=========================================");
+    NS_LOG_INFO("");
+    NS_LOG_INFO("Packet Data after Encryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("");
+    NS_LOG_INFO("=========================================");
 }
 
-void TORPacket::DecryptPacket(const std::string& key) {
+void TORPacket::DecryptPacket() {
+    NS_LOG_INFO("=========================================");
+    NS_LOG_INFO("");
+    NS_LOG_INFO("Packet Data before Decryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("");
+    NS_LOG_INFO("=========================================");
     data = TOREncryption::DecryptLayer(data, currentLayer);
     if (!VerifyChecksum()) {
         throw std::runtime_error("Packet checksum verification failed");
     }
+    NS_LOG_INFO("=========================================");
+    NS_LOG_INFO("");
+    NS_LOG_INFO("Packet Data after Decryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("");
+    NS_LOG_INFO("=========================================");
 }
 
 void TORPacket::CalculateChecksum() {
@@ -270,6 +156,14 @@ void TORPacket::CalculateChecksum() {
     if (1 != EVP_DigestUpdate(mdctx, originalData.c_str(), originalData.size())) {
         EVP_MD_CTX_free(mdctx);
         throw std::runtime_error("TORPacket::CalculateChecksum: EVP_DigestUpdate failed");
+    }
+    if (1 != EVP_DigestUpdate(mdctx, reinterpret_cast<const unsigned char*>(&packetSize), sizeof(packetSize))) {
+        EVP_MD_CTX_free(mdctx);
+        throw std::runtime_error("TORPacket::CalculateChecksum: EVP_DigestUpdate failed for packetSize");
+    }
+    if (1 != EVP_DigestUpdate(mdctx, reinterpret_cast<const unsigned char*>(&packetType), sizeof(packetType))) {
+        EVP_MD_CTX_free(mdctx);
+        throw std::runtime_error("TORPacket::CalculateChecksum: EVP_DigestUpdate failed for packetType");
     }
 
     unsigned char hash[EVP_MAX_MD_SIZE];
@@ -300,6 +194,14 @@ bool TORPacket::VerifyChecksum() {
         EVP_MD_CTX_free(mdctx);
         throw std::runtime_error("TORPacket::VerifyChecksum: EVP_DigestUpdate failed");
     }
+    if (1 != EVP_DigestUpdate(mdctx, reinterpret_cast<const unsigned char*>(&packetSize), sizeof(packetSize))) {
+        EVP_MD_CTX_free(mdctx);
+        throw std::runtime_error("TORPacket::VerifyChecksum: EVP_DigestUpdate failed for packetSize");
+    }
+    if (1 != EVP_DigestUpdate(mdctx, reinterpret_cast<const unsigned char*>(&packetType), sizeof(packetType))) {
+        EVP_MD_CTX_free(mdctx);
+        throw std::runtime_error("TORPacket::VerifyChecksum: EVP_DigestUpdate failed for packetType");
+    }
 
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int lengthOfHash = 0;
@@ -328,7 +230,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
         NS_LOG_ERROR("Invalid layer: " << layer);
         return;
     }
-    packet.DecryptPacket(keys[layer]);
+    packet.DecryptPacket();
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
     NS_LOG_INFO("Packet Data after Decryption at Layer " << layer << ": " << packet.data);
@@ -338,12 +240,12 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
     packet.hopCount++;
     if (static_cast<size_t>(layer + 1) < keys.size()) {
         packet.currentLayer = layer + 1;
-        packet.EncryptPacket(keys[layer + 1]);
-    	NS_LOG_INFO("=========================================");
-    	NS_LOG_INFO("");
+        packet.EncryptPacket();
+        NS_LOG_INFO("=========================================");
+        NS_LOG_INFO("");
         NS_LOG_INFO("Packet Data after Encryption at Layer " << layer + 1 << ": " << packet.data);
-    	NS_LOG_INFO("");
-    	NS_LOG_INFO("=========================================");
+        NS_LOG_INFO("");
+        NS_LOG_INFO("=========================================");
     }
     packet.route.push_back(nodeId);
 
@@ -355,7 +257,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
             return;
         }
         const TORCircuit& circuit = circuit_it->second;
-         if (static_cast<size_t>(layer + 1) >= circuit.path.size()) {
+        if (static_cast<size_t>(layer + 1) >= circuit.path.size()) {
             NS_LOG_ERROR("Path index out of bounds: " << layer + 1);
             return;
         }
@@ -411,12 +313,12 @@ int main(int argc, char *argv[]) {
     // Set up node positions
     MobilityHelper mobility;
     mobility.SetPositionAllocator("ns3::GridPositionAllocator",
-                                 "MinX", DoubleValue(0.0),
-                                 "MinY", DoubleValue(0.0),
-                                 "DeltaX", DoubleValue(20.0),
-                                 "DeltaY", DoubleValue(20.0),
-                                 "GridWidth", UintegerValue(4),
-                                 "LayoutType", StringValue("RowFirst"));
+                                   "MinX", DoubleValue(0.0),
+                                   "MinY", DoubleValue(0.0),
+                                   "DeltaX", DoubleValue(20.0),
+                                   "DeltaY", DoubleValue(20.0),
+                                   "GridWidth", UintegerValue(4),
+                                   "LayoutType", StringValue("RowFirst"));
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
     mobility.Install(nodes);
 
@@ -466,7 +368,7 @@ int main(int argc, char *argv[]) {
 
     // Configure client applications with encryption
     OnOffHelper clientHelper("ns3::TcpSocketFactory",
-                           InetSocketAddress(interfaces6.GetAddress(1), port));
+                              InetSocketAddress(interfaces6.GetAddress(1), port));
     clientHelper.SetAttribute("DataRate", StringValue(dataRate));
     clientHelper.SetAttribute("PacketSize", UintegerValue(packetSize));
     clientHelper.SetAttribute("OnTime", StringValue("ns3::ExponentialRandomVariable[Mean=" + std::to_string(onTimeMean) + "]"));
@@ -477,7 +379,7 @@ int main(int argc, char *argv[]) {
     clientApps.Add(clientHelper.Install(clientNode));
 
     PacketSinkHelper sinkHelper("ns3::TcpSocketFactory",
-                              InetSocketAddress(Ipv4Address::GetAny(), port));
+                                InetSocketAddress(Ipv4Address::GetAny(), port));
 
     ApplicationContainer serverApps;
     Ptr<Node> destinationNode = nodes.Get(6);
@@ -546,6 +448,8 @@ int main(int argc, char *argv[]) {
         packet.circuitId = circuit.circuitId;
         packet.isControl = false;
         packet.protocol = 6; // TCP
+        packet.packetSize = initialData.size();
+        packet.packetType = DATA_PACKET;
         packet.numLayers = circuit.keys.size();
         packet.currentLayer = 0;
 
@@ -555,7 +459,6 @@ int main(int argc, char *argv[]) {
         // Calculate checksum and encrypt at client
         packet.CalculateChecksum();
         NS_LOG_INFO("");
-	//NS_LOG_INFO("==ENCRYPTION DATA==");
         NS_LOG_INFO("  Keys: ");
         for (const std::string& key : circuit.keys) {
             std::stringstream key_ss;
@@ -564,36 +467,29 @@ int main(int argc, char *argv[]) {
             }
             NS_LOG_INFO("    Key (hex): " << key_ss.str());
         }
-	NS_LOG_INFO("");
-        packet.EncryptPacket(circuit.keys[0]);
+        NS_LOG_INFO("");
+        packet.EncryptPacket();
         NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
 
         // Simulate packet forwarding through the TOR network
         Ptr<Node> clientNode = NodeList::GetNode(0);
         Ptr<Node> entryNode = NodeList::GetNode(1);
         SendPacket(clientNode, entryNode, packet, packet.protocol);
-        //NS_LOG_INFO("==ENCRYPTION DATA==");
-	NS_LOG_INFO("");
+        NS_LOG_INFO("");
         ProcessHop(packet, 0, circuit.keys, 1);
-        //NS_LOG_INFO("==ENCRYPTION DATA==");
-	NS_LOG_INFO("");
+        NS_LOG_INFO("");
         ProcessHop(packet, 1, circuit.keys, 2);
-        //NS_LOG_INFO("==ENCRYPTION DATA==");
-	NS_LOG_INFO("");
+        NS_LOG_INFO("");
         ProcessHop(packet, 2, circuit.keys, 3);
-        //NS_LOG_INFO("==ENCRYPTION DATA==");
-	NS_LOG_INFO("");
+        NS_LOG_INFO("");
         ProcessHop(packet, 3, circuit.keys, 4);
-        //NS_LOG_INFO("==ENCRYPTION DATA==");
-	NS_LOG_INFO("");
+        NS_LOG_INFO("");
         ProcessHop(packet, 4, circuit.keys, 5);
 
         // Exit Node Policy Check
         if (ExitNodePolicy(packet, 6)) {
             // Decrypt at Destination
-            //NS_LOG_INFO("==ENCRYPTION DATA==");
-            //NS_LOG_INFO=("");
-	    packet.DecryptPacket(circuit.keys[5]);
+            packet.DecryptPacket();
             NS_LOG_INFO("Packet Data after Destination Decryption: " << packet.data);
             packet.hopCount++;
             packet.route.push_back(6);
@@ -603,7 +499,7 @@ int main(int argc, char *argv[]) {
         } else {
             NS_LOG_INFO("Packet dropped at exit node due to policy.");
         }
- });
+    });
 
     Simulator::Schedule(Seconds(simulationTime), &Simulator::Stop);
 
@@ -643,25 +539,25 @@ int main(int argc, char *argv[]) {
     }
 
     // Calculate and print overall network statistics
-uint64_t totalTxBytes = 0, totalRxBytes = 0;
-uint32_t totalTxPackets = 0, totalRxPackets = 0, totalLostPackets = 0;
-double totalDelay = 0;
+    uint64_t totalTxBytes = 0, totalRxBytes = 0;
+    uint32_t totalTxPackets = 0, totalRxPackets = 0, totalLostPackets = 0;
+    double totalDelay = 0;
 
-for (auto& stat : stats) {
-    totalTxBytes += stat.second.txBytes; // Bytes transmitted by all sources
-    totalRxBytes += stat.second.rxBytes; // Bytes received by all destinations
-    totalTxPackets += stat.second.txPackets; // Packets transmitted by all sources
-    totalRxPackets += stat.second.rxPackets; // Packets received by all destinations
-    totalLostPackets += stat.second.lostPackets; // Total lost packets across all flows
-    totalDelay += stat.second.delaySum.GetSeconds(); // Sum of delays for all received packets
-}
+    for (auto& stat : stats) {
+        totalTxBytes += stat.second.txBytes; // Bytes transmitted by all sources
+        totalRxBytes += stat.second.rxBytes; // Bytes received by all destinations
+        totalTxPackets += stat.second.txPackets; // Packets transmitted by all sources
+        totalRxPackets += stat.second.rxPackets; // Packets received by all destinations
+        totalLostPackets += stat.second.lostPackets; // Total lost packets across all flows
+        totalDelay += stat.second.delaySum.GetSeconds(); // Sum of delays for all received packets
+    }
 
-NS_LOG_INFO("Overall Network Statistics:");
-NS_LOG_INFO("Total Transmitted Packets: " << totalTxPackets); // Total packets transmitted by all source nodes
-NS_LOG_INFO("Total Received Packets: " << totalRxPackets);   // Total packets received by all destination nodes
-NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
-NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay/totalRxPackets : 0) << " seconds");
-NS_LOG_INFO("Packet Delivery Ratio: " << (totalTxPackets > 0 ? (double)totalRxPackets/totalTxPackets * 100 : 0) << "%");
+    NS_LOG_INFO("Overall Network Statistics:");
+    NS_LOG_INFO("Total Transmitted Packets: " << totalTxPackets); // Total packets transmitted by all source nodes
+    NS_LOG_INFO("Total Received Packets: " << totalRxPackets);   // Total packets received by all destination nodes
+    NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
+    NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay / totalRxPackets : 0) << " seconds");
+    NS_LOG_INFO("Packet Delivery Ratio: " << (totalTxPackets > 0 ? (double)totalRxPackets / totalTxPackets * 100 : 0) << "%");
     NS_LOG_INFO("Simulation Time: " << simulationTime << " seconds");
 
     if (simulationTime < 3.0) {
