@@ -25,6 +25,8 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("TORNetworkExample");
 
+uint32_t totalRxTorPackets = 0; // Track total received TOR packets
+
 void initialize_openssl() {
     // Initialize OpenSSL
     OPENSSL_no_config();
@@ -112,32 +114,46 @@ void PrintPacketHeader(const TORPacket& packet) {
 }
 
 void TORPacket::EncryptPacket() {
+    std::stringstream data_ss_before, data_ss_after;
+    for (char c : data) {
+        data_ss_before << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+    }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data before Encryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("Packet Data before Encryption at Layer " << currentLayer << " (hex): " << data_ss_before.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
     data = TOREncryption::EncryptLayer(data, currentLayer);
+    for (char c : data) {
+        data_ss_after << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+    }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data after Encryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("Packet Data after Encryption at Layer " << currentLayer << " (hex): " << data_ss_after.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
 }
 
 void TORPacket::DecryptPacket() {
+    std::stringstream data_ss_before, data_ss_after;
+    for (char c : data) {
+        data_ss_before << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+    }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data before Decryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("Packet Data before Decryption at Layer " << currentLayer << " (hex): " << data_ss_before.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
     data = TOREncryption::DecryptLayer(data, currentLayer);
     if (!VerifyChecksum()) {
         throw std::runtime_error("Packet checksum verification failed");
     }
+    for (char c : data) {
+        data_ss_after << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+    }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data after Decryption at Layer " << currentLayer << ": " << data);
+    NS_LOG_INFO("Packet Data after Decryption at Layer " << currentLayer << " (hex): " << data_ss_after.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
 }
@@ -230,6 +246,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
         NS_LOG_ERROR("Invalid layer: " << layer);
         return;
     }
+    packet.route.push_back(nodeId);
     packet.DecryptPacket();
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
@@ -247,7 +264,6 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
         NS_LOG_INFO("");
         NS_LOG_INFO("=========================================");
     }
-    packet.route.push_back(nodeId);
 
     // Forward the packet to the next node in the path
     if (static_cast<size_t>(layer + 1) < keys.size()) {
@@ -265,8 +281,18 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
         Ptr<Node> fromNode = NodeList::GetNode(nodeId);
         Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
         SendPacket(fromNode, toNode, packet, packet.protocol);
+        // Schedule the next hop
+        Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
     } else {
         NS_LOG_INFO("Packet reached end of circuit path.");
+        NS_LOG_INFO("");
+        PrintPacketHeader(packet);
+        NS_LOG_INFO("");
+        // Forward the packet to the destination node
+        Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+        Ptr<Node> toNode = NodeList::GetNode(6); // Destination node ID is 6
+        SendPacket(fromNode, toNode, packet, packet.protocol);
+        totalRxTorPackets++;
     }
 }
 
@@ -291,20 +317,17 @@ int main(int argc, char *argv[]) {
     std::string initialData = "This is a test message";
     double simulationTime = 10.0;
     std::string dataRate = "5Mbps";
-    uint32_t packetSize = 1000;
-    std::string queueSize = "1000p";
-    double onTimeMean = 1.0;
-    double offTimeMean = 0.1;
+    std::string queueSize = "2000p";
     uint16_t port = 9001;
+    uint32_t numPackets = 1; // Default number of packets
+    uint32_t totalTxTorPackets = 0; // Track total transmitted TOR packets
 
     cmd.AddValue("initialData", "Initial data for the packet", initialData);
     cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
     cmd.AddValue("dataRate", "Data rate for the client application", dataRate);
-    cmd.AddValue("packetSize", "Packet size for the client application", packetSize);
     cmd.AddValue("queueSize", "Queue size for the point-to-point links", queueSize);
-    cmd.AddValue("onTimeMean", "Mean on time for the client application", onTimeMean);
-    cmd.AddValue("offTimeMean", "Mean off time for the client application", offTimeMean);
     cmd.AddValue("port", "Port number for the client and server applications", port);
+    cmd.AddValue("numPackets", "Number of TOR packets to send", numPackets);
     cmd.Parse(argc, argv);
 
     NodeContainer nodes;
@@ -367,29 +390,6 @@ int main(int argc, char *argv[]) {
     flowMonitor = flowHelper.InstallAll();
 
     // Configure client applications with encryption
-    OnOffHelper clientHelper("ns3::TcpSocketFactory",
-                              InetSocketAddress(interfaces6.GetAddress(1), port));
-    clientHelper.SetAttribute("DataRate", StringValue(dataRate));
-    clientHelper.SetAttribute("PacketSize", UintegerValue(packetSize));
-    clientHelper.SetAttribute("OnTime", StringValue("ns3::ExponentialRandomVariable[Mean=" + std::to_string(onTimeMean) + "]"));
-    clientHelper.SetAttribute("OffTime", StringValue("ns3::ExponentialRandomVariable[Mean=" + std::to_string(offTimeMean) + "]"));
-
-    ApplicationContainer clientApps;
-    Ptr<Node> clientNode = nodes.Get(0);
-    clientApps.Add(clientHelper.Install(clientNode));
-
-    PacketSinkHelper sinkHelper("ns3::TcpSocketFactory",
-                                InetSocketAddress(Ipv4Address::GetAny(), port));
-
-    ApplicationContainer serverApps;
-    Ptr<Node> destinationNode = nodes.Get(6);
-    serverApps.Add(sinkHelper.Install(destinationNode)); // Only destination receives
-
-    clientApps.Start(Seconds(1.0));
-    const double CLIENT_STOP_TIME = simulationTime - 2.0;
-    clientApps.Stop(Seconds(CLIENT_STOP_TIME));
-    serverApps.Start(Seconds(0.0));
-    serverApps.Stop(Seconds(simulationTime));
 
     // Visualization setup with limited trace file size
     AnimationInterface anim("tor-network-visualization.xml");
@@ -435,71 +435,51 @@ int main(int argc, char *argv[]) {
     NS_LOG_INFO("");
 
     // Simulate packet transmission and encryption
-    Simulator::Schedule(Seconds(2.0), [&](){
-        // Create a TOR packet
-        TORPacket packet;
-        packet.sequenceNumber = 1;
-        packet.originalData = initialData;
-        packet.data = initialData;
-        packet.timestamp = Simulator::Now().GetSeconds();
-        packet.hopCount = 0;
-        packet.sourceNode = "Client";
-        packet.destinationNode = "Destination";
-        packet.circuitId = circuit.circuitId;
-        packet.isControl = false;
-        packet.protocol = 6; // TCP
-        packet.packetSize = initialData.size();
-        packet.packetType = DATA_PACKET;
-        packet.numLayers = circuit.keys.size();
-        packet.currentLayer = 0;
+    for (uint32_t i = 0; i < numPackets; ++i) {
+        Simulator::Schedule(Seconds(2.0 + i * 0.1), [&, i](){
+            // Create a TOR packet
+            TORPacket packet;
+            packet.sequenceNumber = i + 1;
+            packet.originalData = initialData;
+            packet.data = initialData;
+            packet.timestamp = Simulator::Now().GetSeconds();
+            packet.hopCount = 0;
+            packet.sourceNode = "Client";
+            packet.destinationNode = "Destination";
+            packet.circuitId = circuit.circuitId;
+            packet.isControl = false;
+            packet.protocol = 6; // TCP
+            packet.packetType = DATA_PACKET;
+            packet.numLayers = circuit.keys.size();
+            packet.currentLayer = 0;
+            packet.packetSize = packet.data.size();
 
-        NS_LOG_INFO("================ ENCRYPTION DATA ==================");
-        NS_LOG_INFO("Original Packet Data: " << packet.data);
+            NS_LOG_INFO("================ ENCRYPTION DATA ==================");
+            NS_LOG_INFO("Original Packet Data: " << packet.data);
 
-        // Calculate checksum and encrypt at client
-        packet.CalculateChecksum();
-        NS_LOG_INFO("");
-        NS_LOG_INFO("  Keys: ");
-        for (const std::string& key : circuit.keys) {
-            std::stringstream key_ss;
-            for (char c : key) {
-                key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+            // Calculate checksum and encrypt at client
+            packet.CalculateChecksum();
+            NS_LOG_INFO("");
+            NS_LOG_INFO("  Keys: ");
+            for (const std::string& key : circuit.keys) {
+                std::stringstream key_ss;
+                for (char c : key) {
+                    key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
+                }
+                NS_LOG_INFO("    Key (hex): " << key_ss.str());
             }
-            NS_LOG_INFO("    Key (hex): " << key_ss.str());
-        }
-        NS_LOG_INFO("");
-        packet.EncryptPacket();
-        NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
-
-        // Simulate packet forwarding through the TOR network
-        Ptr<Node> clientNode = NodeList::GetNode(0);
-        Ptr<Node> entryNode = NodeList::GetNode(1);
-        SendPacket(clientNode, entryNode, packet, packet.protocol);
-        NS_LOG_INFO("");
-        ProcessHop(packet, 0, circuit.keys, 1);
-        NS_LOG_INFO("");
-        ProcessHop(packet, 1, circuit.keys, 2);
-        NS_LOG_INFO("");
-        ProcessHop(packet, 2, circuit.keys, 3);
-        NS_LOG_INFO("");
-        ProcessHop(packet, 3, circuit.keys, 4);
-        NS_LOG_INFO("");
-        ProcessHop(packet, 4, circuit.keys, 5);
-
-        // Exit Node Policy Check
-        if (ExitNodePolicy(packet, 6)) {
-            // Decrypt at Destination
-            packet.DecryptPacket();
-            NS_LOG_INFO("Packet Data after Destination Decryption: " << packet.data);
-            packet.hopCount++;
-            packet.route.push_back(6);
             NS_LOG_INFO("");
-            PrintPacketHeader(packet);
-            NS_LOG_INFO("");
-        } else {
-            NS_LOG_INFO("Packet dropped at exit node due to policy.");
-        }
-    });
+            packet.EncryptPacket();
+            NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
+
+            // Simulate packet forwarding through the TOR network
+            Ptr<Node> clientNode = NodeList::GetNode(0);
+            Ptr<Node> entryNode = NodeList::GetNode(1);
+            // Schedule the first hop from the client node
+            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, 0, circuit.keys, 0);
+        });
+        totalTxTorPackets++;
+    }
 
     Simulator::Schedule(Seconds(simulationTime), &Simulator::Stop);
 
@@ -544,13 +524,15 @@ int main(int argc, char *argv[]) {
     double totalDelay = 0;
 
     for (auto& stat : stats) {
-        totalTxBytes += stat.second.txBytes; // Bytes transmitted by all sources
-        totalRxBytes += stat.second.rxBytes; // Bytes received by all destinations
-        totalTxPackets += stat.second.txPackets; // Packets transmitted by all sources
-        totalRxPackets += stat.second.rxPackets; // Packets received by all destinations
-        totalLostPackets += stat.second.lostPackets; // Total lost packets across all flows
-        totalDelay += stat.second.delaySum.GetSeconds(); // Sum of delays for all received packets
+        totalTxBytes += stat.second.txBytes;
+        totalRxBytes += stat.second.rxBytes;
+        totalTxPackets += stat.second.txPackets;
+        totalRxPackets += stat.second.rxPackets;
+        totalLostPackets += stat.second.lostPackets;
+        totalDelay += stat.second.delaySum.GetSeconds();
     }
+    
+    totalLostPackets += (totalTxTorPackets > totalRxTorPackets) ? (totalTxTorPackets - totalRxTorPackets) : 0;
 
     NS_LOG_INFO("Overall Network Statistics:");
     NS_LOG_INFO("Total Transmitted Packets: " << totalTxPackets); // Total packets transmitted by all source nodes
@@ -558,7 +540,9 @@ int main(int argc, char *argv[]) {
     NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
     NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay / totalRxPackets : 0) << " seconds");
     NS_LOG_INFO("Packet Delivery Ratio: " << (totalTxPackets > 0 ? (double)totalRxPackets / totalTxPackets * 100 : 0) << "%");
-    NS_LOG_INFO("Simulation Time: " << simulationTime << " seconds");
+    NS_LOG_INFO("Total Transmitted TOR Packets: " << totalTxTorPackets);
+    NS_LOG_INFO("Total Received TOR Packets: " << totalRxTorPackets);
+    NS_LOG_INFO("Max Simulation Time: " << simulationTime << " seconds");
 
     if (simulationTime < 3.0) {
         NS_LOG_INFO("");

@@ -24,9 +24,9 @@ struct TORPacket {
     std::string destinationNode;
     uint32_t circuitId;
     bool isControl;
-    uint16_t protocol; // Add protocol field
     uint32_t packetSize;
     uint16_t packetType;
+    uint16_t protocol;
     std::vector<uint32_t> route; // Add route field
     std::string checksum; // Add checksum field
 
