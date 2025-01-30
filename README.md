@@ -76,13 +76,10 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 Simulacija se može pokrenuti koristeći sljedeće komande:
 ```bash
 ./ns3 run scratch/TOR_model.cc
+./ns3 run scratch/TOR_model.cc -- --numPackets=10
 ./ns3 run scratch/TOR_model.cc -- --initialData="Poruka"
 ./ns3 run scratch/TOR_model.cc -- --simulationTime=10
 ./ns3 run scratch/TOR_model.cc -- --dataRate=1000Mbps  
-./ns3 run scratch/TOR_model.cc -- --packetSize=2000 
-./ns3 run scratch/TOR_model.cc -- --queueSize=2000p
-./ns3 run scratch/TOR_model.cc -- --onTimeMean=2 
-./ns3 run scratch/TOR_model.cc -- --offTimeMean=2 
 ./ns3 run scratch/TOR_model.cc -- --port=9002
 
 ```
