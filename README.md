@@ -81,7 +81,6 @@ Simulacija se može pokrenuti koristeći sljedeće komande:
 ./ns3 run scratch/TOR_model.cc -- --simulationTime=10
 ./ns3 run scratch/TOR_model.cc -- --dataRate=1000Mbps  
 ./ns3 run scratch/TOR_model.cc -- --port=9002
-
 ```
 
 ### Rezultati simulacije
@@ -153,5 +152,19 @@ Slika 7: NetAnim - Početak simulacije
 *Na osmoj slici je prikazan završetak simulacije u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_završetak_simulacije.png alt="NetAnim_završetak_simulacije">
+<br>
 Slika 8: NetAnim - Završetak simulacije
 </p>
+
+*Na slici 9 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
+
+<p align="center"><img src=Slike/quantile_diagram.png alt="quantile_diagram">
+<br>
+Slika 9: QQ dijagram
+</p>
+
+```bash
+gnuplot quantile_plot.plt
+```
+
+Prethodna komanda omogućava generisanje slike qq dijagrama.
