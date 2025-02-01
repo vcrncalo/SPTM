@@ -66,7 +66,7 @@ public:
 
 std::map<uint32_t, TORCircuit> circuits;
 
-void SendPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint16_t protocol) {
+bool SendPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint16_t protocol) {
     // Create a new packet
     Ptr<Packet> p = Create<Packet>((uint8_t*)&packet, sizeof(packet));
 
@@ -90,7 +90,10 @@ void SendPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint16_t
     }
 
     // Send the packet
-    socket->Send(p);
+    if (socket->Send(p) == -1) {
+        return false;
+    }
+    return true;
 }
 
 void PrintPacketHeader(const TORPacket& packet) {
@@ -113,38 +116,50 @@ void PrintPacketHeader(const TORPacket& packet) {
     NS_LOG_INFO("  Protocol: " << packet.protocol);
 }
 
-void TORPacket::EncryptPacket() {
+bool TORPacket::EncryptPacket(uint32_t layer) {
     std::stringstream data_ss_before, data_ss_after;
     for (char c : data) {
         data_ss_before << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
     }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data before Encryption at Layer " << currentLayer << " (hex): " << data_ss_before.str());
+    NS_LOG_INFO("Packet Data before Encryption at Layer " << layer << " (hex): " << data_ss_before.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
-    data = TOREncryption::EncryptLayer(data, currentLayer);
+    try {
+        data = TOREncryption::EncryptLayer(data, layer);
+    } catch (const std::exception& e) {
+        NS_LOG_ERROR("Encryption failed at layer " << layer << ": " << e.what());
+        return false;
+    }
+    return true;
     for (char c : data) {
         data_ss_after << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
     }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data after Encryption at Layer " << currentLayer << " (hex): " << data_ss_after.str());
+    NS_LOG_INFO("Packet Data after Encryption at Layer " << layer << " (hex): " << data_ss_after.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
 }
 
-void TORPacket::DecryptPacket() {
+bool TORPacket::DecryptPacket(uint32_t layer) {
     std::stringstream data_ss_before, data_ss_after;
     for (char c : data) {
         data_ss_before << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
     }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
-    NS_LOG_INFO("Packet Data before Decryption at Layer " << currentLayer << " (hex): " << data_ss_before.str());
+    NS_LOG_INFO("Packet Data before Decryption at Layer " << layer << " (hex): " << data_ss_before.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
-    data = TOREncryption::DecryptLayer(data, currentLayer);
+    try {
+        data = TOREncryption::DecryptLayer(data, layer);
+    } catch (const std::exception& e) {
+        NS_LOG_ERROR("Decryption failed at layer " << layer << ": " << e.what());
+        return false;
+    }
+    return true;
     if (!VerifyChecksum()) {
         throw std::runtime_error("Packet checksum verification failed");
     }
@@ -156,6 +171,13 @@ void TORPacket::DecryptPacket() {
     NS_LOG_INFO("Packet Data after Decryption at Layer " << currentLayer << " (hex): " << data_ss_after.str());
     NS_LOG_INFO("");
     NS_LOG_INFO("=========================================");
+}
+
+void ForwardPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint32_t nextNodeId) {
+    if (!SendPacket(fromNode, toNode, packet, packet.protocol)) {
+        NS_LOG_ERROR("Failed to send packet from node " << fromNode->GetId() << " to node " << nextNodeId);
+        return;
+    }
 }
 
 void TORPacket::CalculateChecksum() {
@@ -242,57 +264,111 @@ bool ExitNodePolicy(const TORPacket& packet, uint32_t destinationNodeId) {
 }
 
 void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>& keys, uint32_t nodeId) {
+    NS_LOG_INFO("ProcessHop: Node ID = " << nodeId << ", Destination = " << packet.destinationNode << ", Layer = " << layer);
     if (layer >= keys.size()) {
         NS_LOG_ERROR("Invalid layer: " << layer);
         return;
     }
     packet.route.push_back(nodeId);
-    packet.DecryptPacket();
+    if (!packet.DecryptPacket(static_cast<uint32_t>(layer))) {
+        NS_LOG_ERROR("Failed to decrypt packet at layer " << layer);
+        return;
+    }
     NS_LOG_INFO("=========================================");
     NS_LOG_INFO("");
     NS_LOG_INFO("Packet Data after Decryption at Layer " << layer << ": " << packet.data);
-    NS_LOG_INFO("");
-    NS_LOG_INFO("=========================================");
 
     packet.hopCount++;
+    bool isFinalDestination = (packet.destinationNode == "Destination" && nodeId == 6);
+
     if (static_cast<size_t>(layer + 1) < keys.size()) {
-        packet.currentLayer = layer + 1;
-        packet.EncryptPacket();
-        NS_LOG_INFO("=========================================");
-        NS_LOG_INFO("");
-        NS_LOG_INFO("Packet Data after Encryption at Layer " << layer + 1 << ": " << packet.data);
-        NS_LOG_INFO("");
-        NS_LOG_INFO("=========================================");
+        if (!packet.EncryptPacket(static_cast<uint32_t>(layer + 1))) {
+            NS_LOG_ERROR("Failed to encrypt packet at layer " << layer + 1);
+            return;
+        }
     }
 
     // Forward the packet to the next node in the path
-    if (static_cast<size_t>(layer + 1) < keys.size()) {
-        auto circuit_it = circuits.find(packet.circuitId);
-        if (circuit_it == circuits.end()) {
-            NS_LOG_ERROR("Circuit not found: " << packet.circuitId);
-            return;
+    if (!isFinalDestination) {
+        if (static_cast<size_t>(layer + 1) < keys.size()) {
+            auto circuit_it = circuits.find(packet.circuitId);
+            if (circuit_it == circuits.end()) {
+                NS_LOG_ERROR("Circuit not found: " << packet.circuitId);
+                return;
+            }
+            const TORCircuit& circuit = circuit_it->second;
+            if (static_cast<size_t>(layer + 1) >= circuit.path.size()) {
+                NS_LOG_ERROR("Path index out of bounds: " << layer + 1);
+                return;
+            }
+            uint32_t nextNodeId = circuit.path[layer + 1];
+            Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+            Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
+            ForwardPacket(fromNode, toNode, packet, nextNodeId);
+            // Schedule the next hop
+            EventId event = Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
+            if (event == EventId()) {
+                NS_LOG_ERROR("Failed to schedule next hop for packet at layer " << layer + 1);
+                return;
+            }
+        } else {
+            NS_LOG_INFO("Packet reached end of circuit path.");
+            NS_LOG_INFO("");
+            PrintPacketHeader(packet);
+            NS_LOG_INFO("");
+
+            // Check if the packet has reached the destination node
+            if (packet.destinationNode == "Destination" && nodeId == 6) {
+                if (packet.sourceNode != "Destination") {
+                    NS_LOG_INFO("Packet reached destination, initiating return trip.");
+                    // Reverse the route
+                    std::reverse(packet.route.begin(), packet.route.end());
+                    packet.currentLayer = packet.numLayers - 1;
+                    packet.destinationNode = "Client";
+                    packet.sourceNode = "Destination";
+                    // Start the return trip
+                    Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+                    Ptr<Node> toNode = NodeList::GetNode(5); // Send back to exit node
+                    ForwardPacket(fromNode, toNode, packet, 5);
+                    Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
+                }
+            } else if (packet.destinationNode == "Destination" && nodeId != 6) {
+                // Forward the packet to the destination node
+                Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+                Ptr<Node> toNode = NodeList::GetNode(6); // Destination node ID is 6
+                ForwardPacket(fromNode, toNode, packet, 6);
+                totalRxTorPackets++;
+            }
         }
-        const TORCircuit& circuit = circuit_it->second;
-        if (static_cast<size_t>(layer + 1) >= circuit.path.size()) {
-            NS_LOG_ERROR("Path index out of bounds: " << layer + 1);
-            return;
-        }
-        uint32_t nextNodeId = circuit.path[layer + 1];
-        Ptr<Node> fromNode = NodeList::GetNode(nodeId);
-        Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
-        SendPacket(fromNode, toNode, packet, packet.protocol);
-        // Schedule the next hop
-        Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
     } else {
-        NS_LOG_INFO("Packet reached end of circuit path.");
-        NS_LOG_INFO("");
-        PrintPacketHeader(packet);
-        NS_LOG_INFO("");
-        // Forward the packet to the destination node
-        Ptr<Node> fromNode = NodeList::GetNode(nodeId);
-        Ptr<Node> toNode = NodeList::GetNode(6); // Destination node ID is 6
-        SendPacket(fromNode, toNode, packet, packet.protocol);
-        totalRxTorPackets++;
+        if (static_cast<size_t>(layer + 1) < keys.size()) {
+             auto circuit_it = circuits.find(packet.circuitId);
+            if (circuit_it == circuits.end()) {
+                NS_LOG_ERROR("Circuit not found: " << packet.circuitId);
+                return;
+            }
+            const TORCircuit& circuit = circuit_it->second;
+            if (static_cast<size_t>(layer + 1) >= circuit.path.size()) {
+                NS_LOG_ERROR("Path index out of bounds: " << layer + 1);
+                return;
+            }
+            uint32_t nextNodeId = circuit.path[layer + 1];
+            Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+            Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
+            ForwardPacket(fromNode, toNode, packet, nextNodeId);
+            // Schedule the next hop
+            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
+        } else {
+            NS_LOG_INFO("Packet reached end of circuit path.");
+            NS_LOG_INFO("");
+            PrintPacketHeader(packet);
+            NS_LOG_INFO("");
+            // Start the return trip
+            Ptr<Node> fromNode = NodeList::GetNode(nodeId);
+            Ptr<Node> toNode = NodeList::GetNode(5); // Send back to exit node
+            ForwardPacket(fromNode, toNode, packet, 5);
+            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
+        }
     }
 }
 
@@ -434,52 +510,55 @@ int main(int argc, char *argv[]) {
     circuits.emplace(circuit.circuitId, circuit);
     NS_LOG_INFO("");
 
-    // Simulate packet transmission and encryption
+    // Create all packets
+    std::vector<TORPacket> packets;
     for (uint32_t i = 0; i < numPackets; ++i) {
-        Simulator::Schedule(Seconds(2.0 + i * 0.1), [&, i](){
-            // Create a TOR packet
-            TORPacket packet;
-            packet.sequenceNumber = i + 1;
-            packet.originalData = initialData;
-            packet.data = initialData;
-            packet.timestamp = Simulator::Now().GetSeconds();
-            packet.hopCount = 0;
-            packet.sourceNode = "Client";
-            packet.destinationNode = "Destination";
-            packet.circuitId = circuit.circuitId;
-            packet.isControl = false;
-            packet.protocol = 6; // TCP
-            packet.packetType = DATA_PACKET;
-            packet.numLayers = circuit.keys.size();
-            packet.currentLayer = 0;
-            packet.packetSize = packet.data.size();
+        TORPacket packet;
+        packet.sequenceNumber = i + 1;
+        packet.originalData = initialData;
+        packet.data = initialData;
+        packet.timestamp = Simulator::Now().GetSeconds();
+        packet.hopCount = 0;
+        packet.sourceNode = "Client";
+        packet.destinationNode = "Destination";
+        packet.circuitId = circuit.circuitId;
+        packet.isControl = false;
+        packet.protocol = 6; // TCP
+        packet.packetType = DATA_PACKET;
+        packet.numLayers = circuit.keys.size();
+        packet.currentLayer = 0;
+        NS_LOG_INFO("================ ENCRYPTION DATA ==================");
+        NS_LOG_INFO("Original Packet Data: " << packet.data);
+        packet.packetSize = packet.data.size();
 
-            NS_LOG_INFO("================ ENCRYPTION DATA ==================");
-            NS_LOG_INFO("Original Packet Data: " << packet.data);
-
-            // Calculate checksum and encrypt at client
-            packet.CalculateChecksum();
-            NS_LOG_INFO("");
-            NS_LOG_INFO("  Keys: ");
-            for (const std::string& key : circuit.keys) {
-                std::stringstream key_ss;
-                for (char c : key) {
-                    key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
-                }
-                NS_LOG_INFO("    Key (hex): " << key_ss.str());
+        // Calculate checksum and encrypt at client
+        packet.CalculateChecksum();
+        NS_LOG_INFO("");
+        NS_LOG_INFO("  Keys: ");
+        for (const std::string& key : circuit.keys) {
+            std::stringstream key_ss;
+            for (char c : key) {
+                key_ss << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
             }
-            NS_LOG_INFO("");
-            packet.EncryptPacket();
-            NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
+            NS_LOG_INFO("    Key (hex): " << key_ss.str());
+        }
+        NS_LOG_INFO("");
+        packet.EncryptPacket(static_cast<uint32_t>(0));
+        NS_LOG_INFO("Packet Data after Client Encryption: " << packet.data);
+        packets.push_back(packet);
+        totalTxTorPackets++;
+    }
 
+    // Schedule the sending of all packets at once
+    Simulator::Schedule(Seconds(2.0), [&, packets](){
+        for (const auto& packet : packets) {
             // Simulate packet forwarding through the TOR network
             Ptr<Node> clientNode = NodeList::GetNode(0);
             Ptr<Node> entryNode = NodeList::GetNode(1);
             // Schedule the first hop from the client node
             Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, 0, circuit.keys, 0);
-        });
-        totalTxTorPackets++;
-    }
+        }
+    });
 
     Simulator::Schedule(Seconds(simulationTime), &Simulator::Stop);
 
@@ -489,6 +568,7 @@ int main(int argc, char *argv[]) {
     flowMonitor->CheckForLostPackets();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowHelper.GetClassifier());
     std::map<FlowId, FlowMonitor::FlowStats> stats = flowMonitor->GetFlowStats();
+    std::vector<double> packetDelays; // Store packet delays for quantile diagram
 
     NS_LOG_INFO("================ TOR NETWORK STATISTICS ================");
     NS_LOG_INFO("Verifying Flow Monitoring Configuration:");
@@ -515,8 +595,41 @@ int main(int argc, char *argv[]) {
         NS_LOG_INFO("  Packet Loss Rate: " << (stat.second.txPackets > 0 ? (double)stat.second.lostPackets / stat.second.txPackets * 100 : 0) << "%");
         NS_LOG_INFO("  Throughput: " << (stat.second.rxBytes * 8) / (stat.second.timeLastRxPacket.GetSeconds() - stat.second.timeFirstTxPacket.GetSeconds()) / 1000000 << " Mbps");
         NS_LOG_INFO("  End-to-End Delay: " << (stat.second.rxPackets > 0 ? stat.second.delaySum.GetSeconds() / stat.second.rxPackets : 0) << " seconds");
+        if (stat.second.rxPackets > 0) {
+            packetDelays.push_back(stat.second.delaySum.GetSeconds() / stat.second.rxPackets);
+        }
         NS_LOG_INFO("");
     }
+
+    // Function to generate quantile diagram data for packet delays
+    auto generateQuantileDiagramData = [&](const std::vector<double>& delays) {
+        if (delays.empty()) {
+            NS_LOG_INFO("No packet delays to analyze.");
+            return;
+        }
+
+        std::vector<double> sortedDelays = delays;
+        std::sort(sortedDelays.begin(), sortedDelays.end());
+
+        // Create a file to store the quantile data
+        std::ofstream quantileFile("quantile_data.dat");
+        if (!quantileFile.is_open()) {
+            NS_LOG_ERROR("Failed to open quantile_data.dat for writing.");
+            return;
+        }
+
+        std::vector<double> quantiles = {0.0, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 1.0};
+        for (double q : quantiles) {
+            size_t index = static_cast<size_t>(q * (sortedDelays.size() - 1));
+            quantileFile << q << "\t" << sortedDelays[index] << "\n";
+        }
+
+        quantileFile.close();
+        NS_LOG_INFO("Quantile data written to quantile_data.dat.");
+    };
+
+    // Call the function to generate the quantile diagram data
+    generateQuantileDiagramData(packetDelays);
 
     // Calculate and print overall network statistics
     uint64_t totalTxBytes = 0, totalRxBytes = 0;

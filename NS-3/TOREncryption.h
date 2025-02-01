@@ -13,7 +13,7 @@
 class TOREncryption {
 public:
     static std::vector<std::string> keys;
-    static std::mutex keysMutex;
+    static std::mutex keyMutex;
 
     static std::string GenerateKey(int length = 32) {
         std::vector<unsigned char> key(length);
@@ -24,25 +24,24 @@ public:
     }
 
     static void InitializeKeys(int numLayers) {
-        std::lock_guard<std::mutex> lock(keysMutex);
+        std::lock_guard<std::mutex> lock(keyMutex);
         keys.clear();
         for (int i = 0; i < numLayers; ++i) {
             keys.push_back(GenerateKey());
         }
     }
 
-    static std::string GenerateIV(int length = 16) {
-        std::vector<unsigned char> iv(length);
-        if (1 != RAND_bytes(iv.data(), length)) {
-            throw std::runtime_error("TOREncryption::GenerateIV: RAND_bytes failed");
+    static std::string EncryptLayer(const std::string &data, uint32_t layer) {
+        std::lock_guard<std::mutex> lock(keyMutex);
+        if (layer >= keys.size()) {
+            throw std::runtime_error("TOREncryption::EncryptLayer: Invalid layer");
         }
-        return std::string(reinterpret_cast<char*>(iv.data()), length);
-    }
+        std::string key = keys[layer];
 
-    static std::string EncryptLayer(const std::string &data, int layer) {
-        std::lock_guard<std::mutex> lock(keysMutex);
-        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
-            throw std::runtime_error("Invalid layer");
+        // Generate a random IV
+        unsigned char iv[EVP_MAX_IV_LENGTH];
+        if (1 != RAND_bytes(iv, EVP_MAX_IV_LENGTH)) {
+            throw std::runtime_error("TOREncryption::EncryptLayer: RAND_bytes failed for IV");
         }
 
         std::string encrypted;
@@ -52,39 +51,44 @@ public:
             throw std::runtime_error("TOREncryption::EncryptLayer: EVP_CIPHER_CTX_new failed");
         }
 
-        std::string iv = GenerateIV();
-        if (1 != EVP_EncryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(keys[layer].c_str()), reinterpret_cast<const unsigned char*>(iv.c_str()))) {
+        if (1 != EVP_EncryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(key.data()), iv)) {
             throw std::runtime_error("TOREncryption::EncryptLayer: EVP_EncryptInit_ex failed");
         }
 
-        std::unique_ptr<unsigned char[]> ciphertext(new unsigned char[data.length() + EVP_MAX_BLOCK_LENGTH + iv.length()]);
-        int ciphertext_len = 0;
+        std::unique_ptr<unsigned char[]> ciphertext(new unsigned char[data.length() + EVP_MAX_BLOCK_LENGTH]);
+        int ciphertext_len;
         int len;
 
-        // Prepend IV to ciphertext
-        memcpy(ciphertext.get(), iv.c_str(), iv.length());
-        ciphertext_len += iv.length();
-
-        if (1 != EVP_EncryptUpdate(ctx.get(), ciphertext.get() + ciphertext_len, &len, reinterpret_cast<const unsigned char*>(data.c_str()), data.length())) {
+        if (1 != EVP_EncryptUpdate(ctx.get(), ciphertext.get(), &len, reinterpret_cast<const unsigned char*>(data.c_str()), data.length())) {
             throw std::runtime_error("TOREncryption::EncryptLayer: EVP_EncryptUpdate failed");
         }
-        ciphertext_len += len;
+        ciphertext_len = len;
 
-        if (1 != EVP_EncryptFinal_ex(ctx.get(), ciphertext.get() + ciphertext_len, &len)) {
+        if (1 != EVP_EncryptFinal_ex(ctx.get(), ciphertext.get() + len, &len)) {
             throw std::runtime_error("TOREncryption::EncryptFinal_ex failed");
         }
         ciphertext_len += len;
 
-        encrypted = std::string(reinterpret_cast<char*>(ciphertext.get()), ciphertext_len);
+        // Prepend the IV to the ciphertext
+        encrypted = std::string(reinterpret_cast<char*>(iv), EVP_MAX_IV_LENGTH) + std::string(reinterpret_cast<char*>(ciphertext.get()), ciphertext_len);
 
         return encrypted;
     }
 
-    static std::string DecryptLayer(const std::string &data, int layer) {
-        std::lock_guard<std::mutex> lock(keysMutex);
-        if (layer < 0 || layer >= static_cast<int>(keys.size())) {
-            throw std::runtime_error("Invalid layer");
+    static std::string DecryptLayer(const std::string &data, uint32_t layer) {
+        std::lock_guard<std::mutex> lock(keyMutex);
+        if (layer >= keys.size()) {
+            throw std::runtime_error("TOREncryption::DecryptLayer: Invalid layer");
         }
+        std::string key = keys[layer];
+
+        // Extract the IV from the beginning of the ciphertext
+        std::string iv_str = data.substr(0, EVP_MAX_IV_LENGTH);
+        unsigned char iv[EVP_MAX_IV_LENGTH];
+        std::copy(iv_str.begin(), iv_str.end(), iv);
+
+        // Get the actual ciphertext
+        std::string ciphertext = data.substr(EVP_MAX_IV_LENGTH);
 
         std::string decrypted;
 
@@ -93,23 +97,16 @@ public:
             throw std::runtime_error("TOREncryption::DecryptLayer: EVP_CIPHER_CTX_new failed");
         }
 
-        if (data.length() < 16) {
-            throw std::runtime_error("TOREncryption::DecryptLayer: ciphertext too short");
-        }
-
-        std::string iv = data.substr(0, 16);
-        std::string ciphertext = data.substr(16);
-
-        if (1 != EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(keys[layer].c_str()), reinterpret_cast<const unsigned char*>(iv.c_str()))) {
-             throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptInit_ex failed");
+        if (1 != EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(key.data()), iv)) {
+            throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptInit_ex failed");
         }
 
         std::unique_ptr<unsigned char[]> plaintext(new unsigned char[ciphertext.length()]);
-        int plaintext_len = 0;
+        int plaintext_len;
         int len;
 
         if (1 != EVP_DecryptUpdate(ctx.get(), plaintext.get(), &len, reinterpret_cast<const unsigned char*>(ciphertext.c_str()), ciphertext.length())) {
-            throw std::runtime_error("TOREncryption::DecryptLayer: EVP_DecryptUpdate failed");
+            throw std::runtime_error("TOREncryption::DecryptUpdate failed");
         }
         plaintext_len = len;
 
@@ -126,6 +123,6 @@ public:
 
 // Define the static members
 std::vector<std::string> TOREncryption::keys;
-std::mutex TOREncryption::keysMutex;
+std::mutex TOREncryption::keyMutex;
 
 #endif // TORENCRYPTION_H

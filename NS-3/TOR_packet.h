@@ -16,23 +16,23 @@ struct TORPacket {
     uint32_t sequenceNumber;
     std::string originalData;
     std::string data;
-    uint32_t currentLayer;
-    uint32_t numLayers;
     double timestamp;
     uint32_t hopCount;
     std::string sourceNode;
     std::string destinationNode;
     uint32_t circuitId;
     bool isControl;
+    uint16_t protocol; // Add protocol field
     uint32_t packetSize;
     uint16_t packetType;
-    uint16_t protocol;
     std::vector<uint32_t> route; // Add route field
+    uint32_t currentLayer;
+    uint32_t numLayers;
     std::string checksum; // Add checksum field
 
     // Methods for encrypting and decrypting packet data
-    void EncryptPacket();
-    void DecryptPacket();
+    bool EncryptPacket(uint32_t layer);
+    bool DecryptPacket(uint32_t layer);
     void CalculateChecksum();
     bool VerifyChecksum();
 };
