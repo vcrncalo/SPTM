@@ -263,7 +263,7 @@ bool ExitNodePolicy(const TORPacket& packet, uint32_t destinationNodeId) {
     return false;
 }
 
-void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>& keys, uint32_t nodeId) {
+void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>& keys, uint32_t nodeId, double interHopDelay) {
     NS_LOG_INFO("ProcessHop: Node ID = " << nodeId << ", Destination = " << packet.destinationNode << ", Layer = " << layer);
     if (layer >= keys.size()) {
         NS_LOG_ERROR("Invalid layer: " << layer);
@@ -309,8 +309,8 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
             Ptr<Node> fromNode = NodeList::GetNode(nodeId);
             Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
             ForwardPacket(fromNode, toNode, packet, nextNodeId);
-            // Schedule the next hop
-            EventId event = Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
+            // Schedule the next hop with the specified delay
+            EventId event = Simulator::Schedule(Seconds(interHopDelay), &ProcessHop, packet, layer + 1, keys, nextNodeId, interHopDelay);
             if (event == EventId()) {
                 NS_LOG_ERROR("Failed to schedule next hop for packet at layer " << layer + 1);
                 return;
@@ -334,7 +334,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
                     Ptr<Node> fromNode = NodeList::GetNode(nodeId);
                     Ptr<Node> toNode = NodeList::GetNode(5); // Send back to exit node
                     ForwardPacket(fromNode, toNode, packet, 5);
-                    Simulator::Schedule(Seconds(0.002), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
+                    Simulator::Schedule(Seconds(interHopDelay), &ProcessHop, packet, packet.currentLayer, keys, nodeId, interHopDelay);
                 }
             } else if (packet.destinationNode == "Destination" && nodeId != 6) {
                 // Forward the packet to the destination node
@@ -360,8 +360,8 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
             Ptr<Node> fromNode = NodeList::GetNode(nodeId);
             Ptr<Node> toNode = NodeList::GetNode(nextNodeId);
             ForwardPacket(fromNode, toNode, packet, nextNodeId);
-            // Schedule the next hop
-            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, layer + 1, keys, nextNodeId);
+            // Schedule the next hop with the specified delay
+            Simulator::Schedule(Seconds(interHopDelay), &ProcessHop, packet, layer + 1, keys, nextNodeId, interHopDelay);
         } else {
             NS_LOG_INFO("Packet reached end of circuit path.");
             NS_LOG_INFO("");
@@ -371,7 +371,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
             Ptr<Node> fromNode = NodeList::GetNode(nodeId);
             Ptr<Node> toNode = NodeList::GetNode(5); // Send back to exit node
             ForwardPacket(fromNode, toNode, packet, 5);
-            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
+            Simulator::Schedule(Seconds(interHopDelay), &ProcessHop, packet, packet.currentLayer, keys, nodeId, interHopDelay);
         }
     }
 }
@@ -395,7 +395,7 @@ int main(int argc, char *argv[]) {
 
     CommandLine cmd;
     std::string initialData = "This is a test message";
-    double simulationTime = 10.0;
+    double simulationTime = 20.0;
     std::string dataRate = "5Mbps";
     std::string queueSize = "2000p";
     uint16_t port = 9001;
@@ -408,6 +408,8 @@ int main(int argc, char *argv[]) {
     cmd.AddValue("queueSize", "Queue size for the point-to-point links", queueSize);
     cmd.AddValue("port", "Port number for the client and server applications", port);
     cmd.AddValue("numPackets", "Number of TOR packets to send", numPackets);
+    double interHopDelay = 0.001; // Default inter-hop delay
+    cmd.AddValue("interHopDelay", "Inter-hop delay in seconds", interHopDelay);
     cmd.Parse(argc, argv);
 
     NodeContainer nodes;
@@ -427,7 +429,7 @@ int main(int argc, char *argv[]) {
 
     PointToPointHelper p2p;
     p2p.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
-    p2p.SetChannelAttribute("Delay", StringValue("1ms"));
+    p2p.SetChannelAttribute("Delay", TimeValue(Seconds(interHopDelay)));
     p2p.SetQueue("ns3::DropTailQueue<Packet>",
                  "MaxSize", QueueSizeValue(QueueSize(queueSize))); // Limit queue size
 
@@ -554,13 +556,14 @@ int main(int argc, char *argv[]) {
     }
 
     // Schedule the sending of all packets at once
-    Simulator::Schedule(Seconds(2.0), [&, packets](){
+    Simulator::Schedule(Seconds(1.0), [&, packets](){
         for (const auto& packet : packets) {
             // Simulate packet forwarding through the TOR network
             Ptr<Node> clientNode = NodeList::GetNode(0);
             Ptr<Node> entryNode = NodeList::GetNode(1);
             // Schedule the first hop from the client node
-            Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, 0, circuit.keys, 0);
+            // Introduce a delay before processing the first hop
+            Simulator::Schedule(Seconds(interHopDelay), &ProcessHop, packet, 0, circuit.keys, 0, interHopDelay);
         }
     });
 
@@ -573,6 +576,14 @@ int main(int argc, char *argv[]) {
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowHelper.GetClassifier());
     std::map<FlowId, FlowMonitor::FlowStats> stats = flowMonitor->GetFlowStats();
     std::vector<double> packetDelays; // Store packet delays for quantile diagram
+
+    // Collect packet delays for quantile diagram
+    for (auto& stat : stats) {
+        if (stat.second.rxPackets > 0) {
+            double averageDelay = stat.second.delaySum.GetSeconds() / stat.second.rxPackets;
+            packetDelays.push_back(averageDelay);
+        }
+    }
 
     NS_LOG_INFO("================ TOR NETWORK STATISTICS ================");
     NS_LOG_INFO("Verifying Flow Monitoring Configuration:");
@@ -606,34 +617,45 @@ int main(int argc, char *argv[]) {
     }
 
     // Function to generate quantile diagram data for packet delays
-    auto generateQuantileDiagramData = [&](const std::vector<double>& delays) {
-        if (delays.empty()) {
-            NS_LOG_INFO("No packet delays to analyze.");
+    auto generateQuantileDiagramData = [&](const std::vector<double>& data, const std::string& dataType) {
+        if (data.empty()) {
+            NS_LOG_INFO("No " << dataType << " data to analyze.");
             return;
         }
 
-        std::vector<double> sortedDelays = delays;
-        std::sort(sortedDelays.begin(), sortedDelays.end());
+        std::vector<double> sortedData = data;
+        std::sort(sortedData.begin(), sortedData.end());
 
         // Create a file to store the quantile data
-        std::ofstream quantileFile("quantile_data.dat");
+        std::string filename = "quantile_data_" + dataType + ".dat";
+        std::ofstream quantileFile(filename);
         if (!quantileFile.is_open()) {
-            NS_LOG_ERROR("Failed to open quantile_data.dat for writing.");
+            NS_LOG_ERROR("Failed to open " << filename << " for writing.");
             return;
         }
 
         std::vector<double> quantiles = {0.0, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 1.0};
         for (double q : quantiles) {
-            size_t index = static_cast<size_t>(q * (sortedDelays.size() - 1));
-            quantileFile << q << "\t" << sortedDelays[index] << "\n";
+            size_t index = static_cast<size_t>(q * (sortedData.size() - 1));
+            quantileFile << q << "\t" << sortedData[index] << "\n";
         }
 
         quantileFile.close();
-        NS_LOG_INFO("Quantile data written to quantile_data.dat.");
+        NS_LOG_INFO("Quantile data for " << dataType << " written to " << filename << ".");
     };
 
-    // Call the function to generate the quantile diagram data
-    generateQuantileDiagramData(packetDelays);
+    // Collect throughput data
+    std::vector<double> throughputValues;
+    for (auto& stat : stats) {
+        if (stat.second.rxBytes > 0 && stat.second.timeLastRxPacket.GetSeconds() > stat.second.timeFirstTxPacket.GetSeconds()) {
+            double throughput = (stat.second.rxBytes * 8) / (stat.second.timeLastRxPacket.GetSeconds() - stat.second.timeFirstTxPacket.GetSeconds());
+            throughputValues.push_back(throughput);
+        }
+    }
+
+    // Call the function to generate the quantile diagram data for delay and throughput
+    generateQuantileDiagramData(packetDelays, "delay");
+    generateQuantileDiagramData(throughputValues, "throughput");
 
     // Calculate and print overall network statistics
     uint64_t totalTxBytes = 0, totalRxBytes = 0;
@@ -656,7 +678,8 @@ int main(int argc, char *argv[]) {
     NS_LOG_INFO("Total Received Packets: " << totalRxPackets);   // Total packets received by all destination nodes
     NS_LOG_INFO("Total Lost Packets: " << totalLostPackets);
     NS_LOG_INFO("Average Delay: " << (totalRxPackets > 0 ? totalDelay / totalRxPackets : 0) << " seconds");
-    NS_LOG_INFO("Packet Delivery Ratio: " << (totalTxPackets > 0 ? (double)totalRxPackets / totalTxPackets * 100 : 0) << "%");
+    double packetDeliveryRatio = (totalTxTorPackets > 0) ? (double)totalRxTorPackets / totalTxTorPackets * 100 : 0;
+    NS_LOG_INFO("Packet Delivery Ratio: " << packetDeliveryRatio << "%");
     NS_LOG_INFO("Total Transmitted TOR Packets: " << totalTxTorPackets);
     NS_LOG_INFO("Total Received TOR Packets: " << totalRxTorPackets);
     NS_LOG_INFO("Max Simulation Time: " << simulationTime << " seconds");
