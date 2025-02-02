@@ -81,6 +81,7 @@ Simulacija se može pokrenuti koristeći sljedeće komande:
 ./ns3 run scratch/TOR_model.cc -- --simulationTime=10
 ./ns3 run scratch/TOR_model.cc -- --dataRate=1000Mbps  
 ./ns3 run scratch/TOR_model.cc -- --port=9002
+./ns3 run scratch/*model* -- --interHopDelay=0.01
 ```
 
 ### Rezultati simulacije
@@ -156,15 +157,48 @@ Slika 7: NetAnim - Početak simulacije
 Slika 8: NetAnim - Završetak simulacije
 </p>
 
+*Sljedeći QQ dijagrami za kašnjenje i propusnost su dobijeni pokretanjem sljedeće komande:*
+
+```bash
+./ns3 run scratch/*model* -- --numPackets=1 --interHopDelay=0.01
+```
+
 *Na slici 9 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
 
-<p align="center"><img src=Slike/quantile_diagram.png alt="quantile_diagram">
+<p align="center"><img src=Slike/quantile_diagram_delay_1.png alt="quantile_diagram_delay">
 <br>
-Slika 9: QQ dijagram
+Slika 9: QQ dijagram kašnjenja
+</p>
+
+*Na slici 10 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
+
+<p align="center"><img src=Slike/quantile_diagram_throughput_1.png alt="quantile_diagram_throughput">
+<br>
+Slika 10: QQ dijagram propusnosti
+</p>
+
+*Sljedeći QQ dijagrami za kašnjenje i propusnost su dobijeni pokretanjem sljedeće komande:*
+
+```bash
+./ns3 run scratch/*model* -- --numPackets=5 --interHopDelay=0.5
+```
+
+*Na slici 9 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
+
+<p align="center"><img src=Slike/quantile_diagram_delay_2.png alt="quantile_diagram_delay">
+<br>
+Slika 9: QQ dijagram kašnjenja
+</p>
+
+*Na slici 10 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
+
+<p align="center"><img src=Slike/quantile_diagram_throughput_2.png alt="quantile_diagram_throughput">
+<br>
+Slika 10: QQ dijagram propusnosti
 </p>
 
 ```bash
 gnuplot quantile_plot.plt
 ```
 
-Prethodna komanda omogućava generisanje slike qq dijagrama.
+Prethodna komanda omogućava generisanje slike qq dijagrama za kašnjenje i propusnost.
