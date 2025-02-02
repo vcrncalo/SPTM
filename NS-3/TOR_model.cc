@@ -93,6 +93,9 @@ bool SendPacket(Ptr<Node> fromNode, Ptr<Node> toNode, TORPacket packet, uint16_t
     if (socket->Send(p) == -1) {
         return false;
     }
+    if (!packet.VerifyChecksum()) {
+        throw std::runtime_error("Packet checksum verification failed");
+    }
     return true;
 }
 
@@ -160,9 +163,6 @@ bool TORPacket::DecryptPacket(uint32_t layer) {
         return false;
     }
     return true;
-    if (!VerifyChecksum()) {
-        throw std::runtime_error("Packet checksum verification failed");
-    }
     for (char c : data) {
         data_ss_after << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)(unsigned char)c;
     }
@@ -280,6 +280,10 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
 
     packet.hopCount++;
     bool isFinalDestination = (packet.destinationNode == "Destination" && nodeId == 6);
+    if (isFinalDestination && !ExitNodePolicy(packet, nodeId)) {
+        NS_LOG_ERROR("Exit node policy violation at node " << nodeId);
+        return;
+    }
 
     if (static_cast<size_t>(layer + 1) < keys.size()) {
         if (!packet.EncryptPacket(static_cast<uint32_t>(layer + 1))) {
@@ -330,7 +334,7 @@ void ProcessHop(TORPacket& packet, size_t layer, const std::vector<std::string>&
                     Ptr<Node> fromNode = NodeList::GetNode(nodeId);
                     Ptr<Node> toNode = NodeList::GetNode(5); // Send back to exit node
                     ForwardPacket(fromNode, toNode, packet, 5);
-                    Simulator::Schedule(Seconds(0.001), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
+                    Simulator::Schedule(Seconds(0.002), &ProcessHop, packet, packet.currentLayer, keys, nodeId);
                 }
             } else if (packet.destinationNode == "Destination" && nodeId != 6) {
                 // Forward the packet to the destination node
