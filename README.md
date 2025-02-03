@@ -48,9 +48,9 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 
 3. **Simulacija i praćenje**  
     **Početak i kraj simulacije:**  
-    - Simulacija traje 10 sekundi, s različitim vremenskim okvirom za početak i završetak aplikacija.  
+    - Simulacija traje 10 do 20 sekundi, s različitim vremenskim okvirom za početak i završetak aplikacija.  
     3.1 **Praćenje mreže (Flow monitoring):**  
-    - Korišćen je *FlowMonitor* za praćenje statistike mrežnog saobraćaja, uključujući podatke o paketu (transmisija, prijem, gubici) i kašnjenju.  
+    - Korišten je *FlowMonitor* za praćenje statistike mrežnog saobraćaja, uključujući podatke o paketu (transmisija, prijem, gubici) i kašnjenju.  
     3.2 **Metrike i statistika:**  
     - **Omjer poslanih i primljenih paketa (Packet delivery ratio):** Pokazuje omjer primljenih i poslanih paketa, što je važan indikator efikasnosti mreže.  
     - **Delay:** Prosječno kašnjenje za primljene pakete.  
