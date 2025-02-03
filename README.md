@@ -104,7 +104,7 @@ Simulacija se može pokrenuti koristeći sljedeće komande:
 <p align="center">
 <img src=Slike/Simulacija_3.png alt="Simulacija_3">
 <br>
-Slika 3: Podaci o pozicijama čvorova i prikaz poruke prije i nakon enkripcije
+Slika 3: Podaci o pozicijama čvorova i prikaz poruke prije i prikaz TOR ključeva
 </p>
 
 Za enkripciju je potrebno instalirati OpenSSL biblioteku. To se može uraditi na sljedeći način (na Ubuntu sistemu):
@@ -124,37 +124,43 @@ target_link_libraries(scratch ${OPENSSL_LIBRARIES})
 <p align="center">
 <img src=Slike/Simulacija_4.png alt="Simulacija_4">
 <br>
-Slika 4: Podaci o zaglavlju paketa
+Slika 4: Poruka prije i nakon enkripcije
 </p>
 
 <p align="center">
 <img src=Slike/Simulacija_5.png alt="Simulacija_5">
 <br>
-Slika 5: Podaci o mrežnim tokovima
+Slika 5: Podaci o zaglavlju paketa
 </p>
 
 <p align="center">
 <img src=Slike/Simulacija_6.png alt="Simulacija_6">
 <br>
-Slika 6: Podaci o ukupnom broju poslanih i primljenih paketa
+Slika 6: Podaci o tokovima paketa (tok 1 i 2)
+</p>
+
+<p align="center">
+<img src=Slike/Simulacija_7.png alt="Simulacija_7">
+<br>
+Slika 7: Podaci o ukupnom broju poslanih i primljenih paketa
 </p>
 
 ### NetAnim
 
 Kod za simulaciju TOR mreže u ns-3 simulatoru omogućava i kreiranje xml datoteke koja se može otvoriti u **NetAnim** softveru koji omogućava prikaz animacije mreže. 
 
-*Na sedmoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
+*Na osmoj slici je prikazana mreža sa svim čvorovima kada se xml datoteka tek otovori u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_početak_simulacije.png alt="NetAnim_početak_simulacije">
 <br>
-Slika 7: NetAnim - Početak simulacije
+Slika 8: NetAnim - Početak simulacije
 </p>
 
-*Na osmoj slici je prikazan završetak simulacije u NetAnim-u:*
+*Na devetoj slici je prikazan završetak simulacije u NetAnim-u:*
 
 <p align="center"><img src=Slike/NetAnim_završetak_simulacije.png alt="NetAnim_završetak_simulacije">
 <br>
-Slika 8: NetAnim - Završetak simulacije
+Slika 9: NetAnim - Završetak simulacije
 </p>
 
 *Sljedeći QQ dijagrami za kašnjenje i propusnost su dobijeni pokretanjem sljedeće komande:*
@@ -163,18 +169,18 @@ Slika 8: NetAnim - Završetak simulacije
 ./ns3 run scratch/*model* -- --numPackets=1 --interHopDelay=0.01
 ```
 
-*Na slici 9 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
+*Na slici 10 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
 
 <p align="center"><img src=Slike/quantile_diagram_delay_1.png alt="quantile_diagram_delay">
 <br>
-Slika 9: QQ dijagram kašnjenja
+Slika 10: QQ dijagram kašnjenja
 </p>
 
-*Na slici 10 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
+*Na slici 11 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
 
 <p align="center"><img src=Slike/quantile_diagram_throughput_1.png alt="quantile_diagram_throughput">
 <br>
-Slika 10: QQ dijagram propusnosti
+Slika 11: QQ dijagram propusnosti
 </p>
 
 *Sljedeći QQ dijagrami za kašnjenje i propusnost su dobijeni pokretanjem sljedeće komande:*
@@ -183,18 +189,18 @@ Slika 10: QQ dijagram propusnosti
 ./ns3 run scratch/*model* -- --numPackets=5 --interHopDelay=0.5
 ```
 
-*Na slici 9 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
+*Na slici 12 je prikazan qq dijagram (kašnjenje paketa je uzeto kao parametar):*
 
 <p align="center"><img src=Slike/quantile_diagram_delay_2.png alt="quantile_diagram_delay">
 <br>
-Slika 9: QQ dijagram kašnjenja
+Slika 12: QQ dijagram kašnjenja
 </p>
 
-*Na slici 10 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
+*Na slici 13 je prikazan qq dijagram (propusnost je uzeta kao parametar):*
 
 <p align="center"><img src=Slike/quantile_diagram_throughput_2.png alt="quantile_diagram_throughput">
 <br>
-Slika 10: QQ dijagram propusnosti
+Slika 13: QQ dijagram propusnosti
 </p>
 
 ```bash
