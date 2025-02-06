@@ -71,6 +71,26 @@ Ovaj kod simulira osnovnu TOR mrežu koristeći ns-3 simulator. Omogućeno je kr
 
 ---
 
+## Upute za pokretanje simulacije
+
+```bash
+Kreirati backup postojeće CMakeLists.txt datoteke koja se nalazi u scratch folderu NS-3 simulatora;
+Nakon toga, sljedeće staviti na kraj CMakeLists.txt datoteke koja se nalazi u scratch folderu:
+
+# Link OpenSSL library
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${target_prefix}TOR_model ${OPENSSL_LIBRARIES})
+ 
+Ako se koristi Ubuntu Linux distribucija, potrebno je instalirati OpenSLL na sljedeći način:
+sudo apt update
+sudo apt install libsll-dev
+
+#Prilikom pokretanja skripte odnosno file-a TOR_model.cc potrebno je kopirati sljedeće file-ove :
+#(TOR_model.cc, TOR_packet.h, TOREncryption.h) u scratch folder također instalirati OpenSSL koji je naveden u tekstu iznad
+```
+
+---
+
 ## Simulacija
 
 Simulacija se može pokrenuti koristeći sljedeće komande:
