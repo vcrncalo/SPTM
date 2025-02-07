@@ -83,7 +83,7 @@ target_link_libraries(${target_prefix}TOR_model ${OPENSSL_LIBRARIES})
  
 Ako se koristi Ubuntu Linux distribucija, potrebno je instalirati OpenSLL na sljedeći način:
 sudo apt update
-sudo apt install libsll-dev
+sudo apt install libssl-dev
 
 #Prilikom pokretanja skripte odnosno file-a TOR_model.cc potrebno je kopirati sljedeće file-ove :
 #(TOR_model.cc, TOR_packet.h, TOREncryption.h) u scratch folder također instalirati OpenSSL koji je naveden u tekstu iznad
