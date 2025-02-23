@@ -175,7 +175,7 @@ Config::SetDefault ("ns3::Ipv4GlobalRouting::RespondToInterfaceEvents",BooleanVa
     UdpEchoServerHelper echoServer(9);
     ApplicationContainer serverApp = echoServer.Install(nodes.Get(6));
     serverApp.Start(Seconds(1.0));
-    serverApp.Stop(Seconds(10.0));
+    serverApp.Stop(Seconds(simulationTime));
     
     UdpEchoClientHelper echoClient(interfaces[5].GetAddress(1), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(maxPackets));
