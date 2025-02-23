@@ -13,6 +13,8 @@ TOR predstavlja mrežu virtuelnih tunela koja poboljšava privatnost i sigurnost
 |**Uklanjanje slojeva enkripcije**|udp-echo-server.cc omogućava uklanjanje slojeva enkripcije tako da se nakon posljednjeg koraka prikaže izvorna poruka bez ikakve enkripcije.|
 |**NetAnim simulacija**|Omogućena je NetAnim simulacija kao i generisanje .xml datoteke koja se može koristiti za vizualizaciju simulacije.|
 |**Kreiranje .pcap (Packet Capture) datoteka**|Ovo omogućava detaljno snimanje i analizu saobraćaja.|
+|**Ipis podataka u `output.txt` datoteku**|Podaci o: trajanju simulacije, ukupnom broju poslanih i primljenih paketa, propusnosti i kašnjenju se čuvaju u `output.txt` datoteci.|
+|**GnuPlot vizeulizacija rezultata**|GnuPlot omogućava vizuelizaciju rezultata prikazivanjem grafika na osnovu podataka iz `output.txt` datoteke.|
 
 ---
 
@@ -39,6 +41,8 @@ Prvi parametar omogućava specificiranje trajanja simulacije, dok drugi parameta
 
 ## Rezultati simulacije
 
+### Detaljan ipis iz terminala
+
 ![Simulacija 1](Slike/Simulacija-1.png)
 
 *Slika 1 - Ispis simulacije.*
@@ -60,6 +64,18 @@ Na slici 1 je prikazana string vrijednost koja predstavlja podatke paketa koji s
 - Prosječnog kašnjenja s kraja na kraj.
 
 Modifikacija `udp-echo-server.cc` datoteke je omogućila dekripciju primljenih paketa, dok je u `TOR.cc` datoteci određen broj čvorova, njihov raspored, ispis TOR mrežne statistike, i ostale funckije.  
+
+### GnuPlot - Vizeulizacija rezultata
+
+Podaci iz `output.txt` datoteke se prikazuju u obliku grafika (propusnost i kašnjenje paketa).
+
+![GnuPlot 1](Slike/throughput_bps-average_delay-36.png)
+
+*Slika 3 - GnuPlot prikaz grafika za 36 poslanih paketa.*
+
+![GnuPlot 2](Slike/throughput_bps-average_delay-72.png)
+
+*Slika 4 - GnuPlot prikaz grafika za 72 poslanih paketa.*
 
 ---
 
