@@ -2,7 +2,7 @@
 
 ## Opis projekta
 
-TOR predstavlja mrežu virtuelnih tunela koja poboljšava privatnost i sigurnost na internetu. TOR funkcioniše na način da mrežni saobraćaju prosljeđuje kroz nasumične servere (također poznati kao "releji") u TOR mreži. Posljednji relej u mreži prosljeđuje mrežni saobraćaj na internet. ^[1] 
+TOR predstavlja mrežu virtuelnih tunela koja poboljšava privatnost i sigurnost na internetu. TOR funkcioniše na način da mrežni saobraćaju prosljeđuje kroz nasumične servere (također poznati kao "releji") u TOR mreži. Posljednji relej u mreži prosljeđuje mrežni saobraćaj na internet. [^1] 
 
 *Ovaj projekat omogućava sljedeće:*
 
@@ -63,4 +63,4 @@ Modifikacija `udp-echo-server.cc` datoteke je omogućila dekripciju primljenih p
 
 ## Reference
 
-[1] [The Tor Project, Inc](https://tb-manual.torproject.org/about/)
+[1]: The Tor Project, Inc [About tor browser](https://tb-manual.torproject.org/about/)
