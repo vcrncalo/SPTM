@@ -63,4 +63,4 @@ Modifikacija `udp-echo-server.cc` datoteke je omogućila dekripciju primljenih p
 
 ## Reference
 
-[1]: The Tor Project, Inc [About tor browser](https://tb-manual.torproject.org/about/)
+[^1]: The Tor Project, Inc [About tor browser](https://tb-manual.torproject.org/about/)
