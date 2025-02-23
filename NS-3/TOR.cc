@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream> // This is needed for creating the output file.
 
 using namespace ns3;
 
@@ -63,6 +64,8 @@ static void SentPacket(Ptr<const Packet> p) {
 }
 
 static void ReceivedPacket(Ptr<const Packet> p) {
+    std::ofstream output_file("output.txt", std::ios::app); // This will create and open the file and append data to it.
+    
     m_bytes_received += p->GetSize();
     m_packets_received++;
 
@@ -76,18 +79,28 @@ static void ReceivedPacket(Ptr<const Packet> p) {
         double endTime = Simulator::Now().GetSeconds();
         double startTime = PacketStartTimes[p->GetUid()];
         double packetDelay = endTime - startTime;
-        
+    
         //Ptr<Packet> packetCopy = p->Copy();
-    	//DecryptPacket (packetCopy);
+    	  //DecryptPacket (packetCopy);
         
         totalDelay += packetDelay;
         packetCount++;
+   
+
+        double duration = Simulator::Now().GetSeconds();
+        double throughputBps = (m_bytes_received * 8.0) / duration;
+        //double averageDelay = totalDelay/packetCount;
+
+        output_file << duration << " " << m_packets_sent << " " << m_packets_received << " " << throughputBps << " " << packetDelay << std::endl; // This will create an output file with: duration, sent packets, received packets, throughput and the packet delay with spaces between them.
+
+        output_file.close(); // This closes the output file after writing.
         
         std::cout << "\nPacket " << p->GetUid()+1 << " received at time " << endTime << "s with delay of: "<< packetDelay << " s " << std::endl;
     
 }
 
 void Ratio(){
+
     std::cout << "\n=== TOR network statistics ===\n" << std::endl;
     std::cout << "Transmission summary:" << std::endl;
     std::cout << "------------------------------------" << std::endl;
@@ -99,11 +112,11 @@ void Ratio(){
     std::cout << "Delivery ratio (packets): " << (float)m_packets_received/(float)m_packets_sent * 100 << "%" << std::endl;
               
     double duration = Simulator::Now().GetSeconds();
+    double throughputBps = (m_bytes_received * 8.0) / duration;
     if (duration > 0){
-    	double troughputBps = (m_bytes_received * 8.0) / duration;
     	
-    	std::cout << "Troughput (bps):\t  " << troughputBps << " bps " << std::endl;
-    	std::cout << "Troughput (kbps):\t  " << troughputBps/1000.0 << " kbps " << std::endl;
+    	std::cout << "Troughput (bps):\t  " << throughputBps << " bps " << std::endl;
+    	std::cout << "Troughput (kbps):\t  " << throughputBps/1000.0 << " kbps " << std::endl;
     }   
               
     if (packetCount > 0) {
@@ -112,11 +125,18 @@ void Ratio(){
     
     }          
     std::cout << "------------------------------------" << std::endl;
+
+
+  std::cout << "Created output file: output.txt" << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+
 }
 
 int main(int argc, char *argv[]){
 
-// LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
+    std::ofstream output_file("output.txt"); // Replace output_txt if it was created before.
+
+    // LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
 
 Config::SetDefault ("ns3::Ipv4GlobalRouting::RespondToInterfaceEvents",BooleanValue(true));
 
