@@ -61,6 +61,8 @@ Na slici 1 je prikazana string vrijednost koja predstavlja podatke paketa koji s
 
 Modifikacija `udp-echo-server.cc` datoteke je omogućila dekripciju primljenih paketa, dok je u `TOR.cc` datoteci određen broj čvorova, njihov raspored, ispis TOR mrežne statistike, i ostale funckije.  
 
+---
+
 ## Reference
 
 [^1]: The Tor Project, Inc [About tor browser](https://tb-manual.torproject.org/about/)
