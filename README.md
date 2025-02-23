@@ -38,11 +38,13 @@ Prvi parametar omogućava specificiranje trajanja simulacije, dok drugi parameta
 ## Rezultati simulacije
 
 ![Simulacija 1](Slike/Simulacija-1.png)
+
 *Slika 1 - Ispis simulacije.*
 
 Na slici 1 je prikazana string vrijednost koja predstavlja podatke paketa koji se prenose. "Hello world!" biva enkriptovan 6 puta na odredištu, te se dekriptuje 6 puta na odredištu i na kraju se prikazuje prvobitna vrijednost string-a. **udp-echo-client.cc** omogućava kreiranje paketa. Ono što je promijenjeno u tom kodu je to što se kreiraju paketi koji ne šalju vrijednost 0 (šalju "hello world! string", ispisuje se ta vrijednost, paketi se enkriptuju 6 puta i prosljeđuju kroz mrežu). Za ovaj primjer je odabran jedan paket za slanje kroz mrežu.
 
 ![Simulacija 2](Slike/Simulacija-2.png)
+
 *Slika 2 - Ispis simulacije.*
 
 *Na slici 2 možemo vidjeti TOR mrežnu statistiku sa svim relevantnim podacima poput:*
