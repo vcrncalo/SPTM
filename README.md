@@ -77,6 +77,16 @@ Podaci iz `output.txt` datoteke se prikazuju u obliku grafika (propusnost i kaš
 
 *Slika 4 - GnuPlot prikaz grafika za 72 poslanih paketa.*
 
+### NetAnim vizelizacija rezultata
+
+Pomoću NetAnim programa možemo vidjeti topologiju mreže i pakete koji paketi putuju kroz mrežu. 
+
+*Na slici 5 je prikazana slika nakon završetka simulacije u NetAnim-u:*
+
+![GnuPlot 2](Slike/throughput_bps-average_delay-72.png)
+
+*Slika 5 - Prikaz mrežne topologije nakon završetka simulacije u NetAnim-u.*
+
 ---
 
 ## Reference
