@@ -83,7 +83,7 @@ Pomoću NetAnim programa možemo vidjeti topologiju mreže i pakete koji paketi 
 
 *Na slici 5 je prikazana slika nakon završetka simulacije u NetAnim-u:*
 
-![GnuPlot 2](Slike/throughput_bps-average_delay-72.png)
+![NetAnim](Slike/NetAnim.png)
 
 *Slika 5 - Prikaz mrežne topologije nakon završetka simulacije u NetAnim-u.*
 
