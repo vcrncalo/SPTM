@@ -3,6 +3,9 @@
  *
  * SPDX-License-Identifier: GPL-2.0-only
  */
+/**
+ * @file
+ * @brief This file enables the process of receiving packets in TOR.cc file located in the ../../scratch folder. */
 
 #include "udp-echo-server.h"
 
@@ -144,7 +147,8 @@ UdpEchoServer::StopApplication()
     }
 }
 
-// This is where the code for receiving encrypted packets has been added. Decryption will be performed here. There are 6 layers to be decrypted in total.
+/**
+ * This is where the code for receiving encrypted packets has been added. Decryption will be performed here. There are 6 layers to be decrypted in total. */
 void
 UdpEchoServer::HandleRead(Ptr<Socket> socket)
 {
@@ -160,16 +164,18 @@ UdpEchoServer::HandleRead(Ptr<Socket> socket)
         m_rxTrace(packet);
         m_rxTraceWithAddresses(packet, from, localAddress);
 
-        uint32_t packet_size = packet->GetSize();
-        uint8_t* buffer = new uint8_t[packet_size];
+        uint32_t packet_size = packet->GetSize(); /**< Defining packet size.*/
+        uint8_t* buffer = new uint8_t[packet_size]; /**< Creating a packet buffer.*/
 
-        packet->CopyData(buffer, packet_size);       
+        packet->CopyData(buffer, packet_size);       /**< Copying packet data to the buffer.*/
 
-       uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; // This is the original order of keys, but now we need to acces them from last to first. 
-
+       uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This is the original order of keys, but now we need to acces them from last to first.*/ 
         std::cout << "" << std::endl;
         std::cout << "-------------------------------" << std::endl;
-        std::cout << "Packet data before decryption: ";       
+        std::cout << "Packet data before decryption: ";      
+/**
+ * @brief This for loop prints packet data before decryption.
+ * */ 
         for (uint32_t i = 0; i < packet_size; i++){
           std::cout << buffer[i];
         }
@@ -181,7 +187,12 @@ UdpEchoServer::HandleRead(Ptr<Socket> socket)
 
         // XOR decryption.
         int xor_counter = 0; // This counter is needed to not go over the limit of 6 encryption layers.
-        int counter_for_keys = (sizeof(keys) / sizeof(keys[0])-1); // This counter counts down from the size of the array - 1 until 0 so that all keys get involved in the decryption process.
+        int counter_for_keys = (sizeof(keys) / sizeof(keys[0])-1); /**< This counter counts down from the size of the array - 1 until 0 so that all keys get involved in the decryption process.*/
+        
+/**
+ * @brief Loop for printing packet data after decryption.
+ *
+ * Essentially this loop will keep running while the xor_counter is less than 6, if it is 6 the loop breaks. Buffer characters get XOR-ed with the keys of the array to decrypt a layer. Key counter keeps decreasing and eventually every single layer is decrypted. */
         while (true){
           std::cout << "Packet data after decryption on layer " << xor_counter+1 << ": ";
           for (uint32_t i = 0; i < packet_size; i++){

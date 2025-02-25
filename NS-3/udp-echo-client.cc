@@ -3,8 +3,12 @@
  *
  * SPDX-License-Identifier: GPL-2.0-only
  */
-#include "udp-echo-client.h"
+/** 
+ * @file
+ * @brief This file allows the sending of packets in TOR.cc which is located in the scratch folder.
+ * */
 
+#include "udp-echo-client.h"
 #include "ns3/inet-socket-address.h"
 #include "ns3/inet6-socket-address.h"
 #include "ns3/ipv4-address.h"
@@ -302,6 +306,9 @@ UdpEchoClient::ScheduleTransmit(Time dt)
     m_sendEvent = Simulator::Schedule(dt, &UdpEchoClient::Send, this);
 }
 
+/**
+ * @brief This function handles sending of packets.
+ * */
 void
 UdpEchoClient::Send()
 {
@@ -333,19 +340,27 @@ UdpEchoClient::Send()
         // this case, we don't worry about it either.  But we do allow m_size
         // to have a value different from the (zero) m_dataSize.
         
-        // Creating a message that will be packet's data.
-        std::string message = "Hello World!"; // This is a message that will be sent as packet's data.
-        uint32_t dataSize = message.size(); // This returns the size of the message.
+/**
+ * @brief Creating a message that will be packet's data.
+ * */
+        std::string message = "Hello World!"; /**< This is a message that will be sent as packet's data. */
+        uint32_t dataSize = message.size(); /**< This returns the size of the message. */
 
-        // Allocate a buffer to hold the message data.
+/**
+ * @brief Allocate a buffer to hold the message data.
+ * */
         uint8_t* dataBuffer = new uint8_t[dataSize];
-        memcpy(dataBuffer, message.c_str(), dataSize); // This copies dataSize number of bits from message.c_str to the dataBuffer. 
+        memcpy(dataBuffer, message.c_str(), dataSize); /**< This copies dataSize number of bits from message.c_str to the dataBuffer.*/ 
        
-        uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'};
+        uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This declares key which will be used in the encryption process.*/
 
         std::cout << "\n"; 
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Packet data before encryption: ";
+/**
+ * @brief This for loops allows printing of packet data before encryption.
+ * */
+        
         for (uint32_t i = 0; i < dataSize; i++){
           std::cout << dataBuffer[i];
         }
@@ -358,9 +373,11 @@ UdpEchoClient::Send()
         std::cout << "-------------------------------" << std::endl;
         
         // XOR encryption.
-        int xor_counter = 0;
+        int xor_counter = 0; /**< This counter is used in the for loop for encryption purposes. */
        
-        // This loop essentially checks if the xor_counter is 6, and if it isn't, it breaks out of the loop. This is because the goal of this is to create 6 encryption layers with 6 different keys which have been specified in the keys array. 
+/**
+ * @brief This loop essentially checks if the xor_counter is 6, and if it isn't, it breaks out of the loop. This is because the goal of this is to create 6 encryption layers with 6 different keys which have been specified in the keys array.
+ * */ 
         while (true){
           std::cout << "Packet data after encryption with layer " << xor_counter+1 << ": ";
           for (uint32_t i = 0; i < dataSize; i++) {
@@ -376,10 +393,14 @@ UdpEchoClient::Send()
         
         std::cout << "-------------------------------" << std::endl;
 
-        // Create the packet with the encrypted data.
+/**
+ * @brief Create the packet with the encrypted data.
+ * */
         p = Create<Packet>(dataBuffer, dataSize);
 
-        // Clean up the buffer after creating the packet.
+/**
+ * @brief Clean up the buffer after creating the packet.
+ * */
         delete[] dataBuffer;
 
     }
@@ -437,7 +458,9 @@ UdpEchoClient::Send()
         ScheduleTransmit(m_interval);
     }
 }
-
+/**
+ * @brief This function handles the process of receiving packets.
+ * */
 void
 UdpEchoClient::HandleRead(Ptr<Socket> socket)
 {
