@@ -1,0 +1,620 @@
+\doxysection{TOR.\+cc File Reference}
+\hypertarget{TOR_8cc}{}\label{TOR_8cc}\index{TOR.cc@{TOR.cc}}
+
+
+This code will allow transfer of packets, \doxylink{udp-echo-client_8cc}{udp-\/echo-\/client.\+cc} located in src/applications/model allows sending of packets with string passed as data, while \doxylink{udp-echo-server_8cc}{udp-\/echo-\/server.\+cc} in the same directory allows the packets to be received.  
+
+
+{\ttfamily \#include "{}ns3/core-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/network-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/internet-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/point-\/to-\/point-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/applications-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/ipv4-\/global-\/routing-\/helper.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/netanim-\/module.\+h"{}}\newline
+{\ttfamily \#include "{}ns3/mobility-\/module.\+h"{}}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structPacketTrace}{Packet\+Trace}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{TOR_8cc_a0ca1a985b4e0e5889caa42b800cd500c}{NS\+\_\+\+LOG\+\_\+\+COMPONENT\+\_\+\+DEFINE}} ("{}Simple\+TOR"{})
+\item 
+static void \mbox{\hyperlink{TOR_8cc_a0a0b614045eabac5ae39068c751bc13c}{Sent\+Packet}} (Ptr$<$ const Packet $>$ p)
+\begin{DoxyCompactList}\small\item\em This is a function which handles the sending of packets. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{TOR_8cc_ad4f31207f9f4aa27f8b98371bac2c43a}{Received\+Packet}} (Ptr$<$ const Packet $>$ p)
+\begin{DoxyCompactList}\small\item\em This is a function which handles the process of receiving packets. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{TOR_8cc_a41f5bae5e91f6ddd8fe8ef4e4ea22fb0}{Ratio}} ()
+\begin{DoxyCompactList}\small\item\em This function allows the tor network statistic to be printed out, which prints all relevant data about the network simulation. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{TOR_8cc_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char \texorpdfstring{$\ast$}{*}argv\mbox{[}$\,$\mbox{]})
+\begin{DoxyCompactList}\small\item\em This is the main function which gets called once the simulation starts. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ uint32\+\_\+t, \mbox{\hyperlink{structPacketTrace}{Packet\+Trace}} $>$ \mbox{\hyperlink{TOR_8cc_a0d28d757f01052039665d254fab8e99b}{packet\+Tracker}}
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{TOR_8cc_a672e6b876a80d156ed72c507ee968b7c}{node\+Names}} = \{"{}Client"{}, "{}Entry"{}, "{}Relay1"{}, "{}Relay2"{}, "{}Relay3"{}, "{}Exit"{}, "{}Destination"{}\}
+\begin{DoxyCompactList}\small\item\em Here, we are declaring node names for all nodes in the network topology. \end{DoxyCompactList}\item 
+static Time \mbox{\hyperlink{TOR_8cc_aac3ae523fec16d778d774478f3df0465}{g\+\_\+first\+Packet\+Time}} = Seconds(0.\+0)
+\begin{DoxyCompactList}\small\item\em This is the variable which gets assigned a value of the time when the first packet was transmitted. \end{DoxyCompactList}\item 
+static Time \mbox{\hyperlink{TOR_8cc_a7a3fb7382450bca51ad96938e2564fed}{g\+\_\+last\+Packet\+Time}} = Seconds(0.\+0)
+\begin{DoxyCompactList}\small\item\em This is the variable which gets assigned a value of the time when the last packet was transmitted. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{TOR_8cc_abf1bc45f0deaf6cfc46353a53611dbf6}{g\+\_\+first\+Packet}} = true
+\begin{DoxyCompactList}\small\item\em This is a boolean value for the first packet which can be true or false. \end{DoxyCompactList}\item 
+static std\+::map$<$ uint32\+\_\+t, double $>$ \mbox{\hyperlink{TOR_8cc_a661b93e41fb1458d06f45ef6d878007b}{Packet\+Start\+Times}}
+\item 
+static double \mbox{\hyperlink{TOR_8cc_a7f36ed0a326cc9c48667240a3f535d58}{total\+Delay}} = 0.\+0
+\begin{DoxyCompactList}\small\item\em This is a variable, type double, which means it stores decimal values, and it stores the value of the total delay of the network. \end{DoxyCompactList}\item 
+static int \mbox{\hyperlink{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad}{packet\+Count}} = 0
+\item 
+uint32\+\_\+t \mbox{\hyperlink{TOR_8cc_ae221e59bbcf8c62ba971945955311be4}{m\+\_\+bytes\+\_\+sent}} = 0
+\begin{DoxyCompactList}\small\item\em This is an unsigned variable type, which means that it cannot have negative values, and the range for the numbers it can have is from 0 to 2\texorpdfstring{$^\wedge$}{\string^}32. This variable stores the amount of sent bytes. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\+\_\+bytes\+\_\+received}} = 0
+\begin{DoxyCompactList}\small\item\em This variable stores the amount of received bytes. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}{m\+\_\+packets\+\_\+sent}} = 0
+\begin{DoxyCompactList}\small\item\em This variable stores the amount of sent packets. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}{m\+\_\+packets\+\_\+received}} = 0
+\begin{DoxyCompactList}\small\item\em This variable stores the amount of received packets. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{TOR_8cc_a433017f86ae7754cbf9ef71bb138aca9}{m\+\_\+time}} = 0
+\item 
+std\+::map$<$ uint32\+\_\+t, double $>$ \mbox{\hyperlink{TOR_8cc_a2b33f6ab9003385a44c5b3b0047fcb19}{m\+\_\+delay\+Table}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This code will allow transfer of packets, \doxylink{udp-echo-client_8cc}{udp-\/echo-\/client.\+cc} located in src/applications/model allows sending of packets with string passed as data, while \doxylink{udp-echo-server_8cc}{udp-\/echo-\/server.\+cc} in the same directory allows the packets to be received. 
+
+
+
+Definition in file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{TOR_8cc_a0ddf1224851353fc92bfbff6f499fa97}\label{TOR_8cc_a0ddf1224851353fc92bfbff6f499fa97} 
+\index{TOR.cc@{TOR.cc}!main@{main}}
+\index{main@{main}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+This is the main function which gets called once the simulation starts. 
+
+If output.\+txt exists in the directory where the simulation is started, it will be replaced with output.\+txt with no content. std\+::ofstream output\+\_\+file("{}output.\+txt"{}); // Replace output\+\_\+txt if it was created before.
+
+Simulation time is assigned to this variable.
+
+This variable stores the maximum amount of packets.
+
+This allows the user to specify parameters which could be changed while running the simulation, such as\+: ./ns3 run \doxylink{TOR_8cc}{scratch/\+TOR.\+cc} -- -\/max\+Packets=5 -\/simulation\+Time=30
+
+Node container is specified.
+
+7 nodes are being created.
+
+Data rate parameter is being assigned to the point-\/to-\/point link.
+
+Delay parameter is being assigned to the point-\/to-\/point link.
+
+This holds a collection of network devices, such as wifi or ethernet devices.
+
+This holds IPv4 addresses of network devices.
+
+This installs a network stack on nodes.
+
+This assigns IPv4 addresses to network devices.
+
+This creates a P2P link between nodes 0 and 1.
+
+This specifies the initialisation time of the server.
+
+This specifies the time when the server stops responding.
+
+This creates and allocates a mobility model and installs it for the nodes.
+
+This will create an xml file which can later be viewed in Net\+Anim which provides network visualisation.
+
+This sets the maximum amounts of packets per trace file.
+
+This specifies node descriptions.
+
+Apart from this, we choose node colors.
+
+Network tracing is enabled here.
+
+This allows the simulation to start.
+
+This frees up resources which were allocated to the simulation while it was running.
+
+If 0 is returned, that means that code execution was successfull.
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00220}{220}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{comment}{//\ LogComponentEnable("{}UdpEchoClientApplication"{},\ LOG\_LEVEL\_INFO);}}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ Config::SetDefault\ (\textcolor{stringliteral}{"{}ns3::Ipv4GlobalRouting::RespondToInterfaceEvents"{}},BooleanValue(\textcolor{keyword}{true}));}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordtype}{double}\ simulationTime\ =\ 20;\ \textcolor{comment}{//\ 20\ seconds.}}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordtype}{double}\ maxPackets\ =\ 10;\ \textcolor{comment}{//\ 10\ packets.}}
+\DoxyCodeLine{00237\ \ }
+\DoxyCodeLine{00238\ \ \ \ \ Packet::EnablePrinting();}
+\DoxyCodeLine{00239\ \ \ \ \ PacketMetadata::Enable();\ \ }
+\DoxyCodeLine{00240\ \ }
+\DoxyCodeLine{00244\ \ \ \ \ CommandLine\ cmd;}
+\DoxyCodeLine{00245\ \ \ \ \ cmd.AddValue\ (\textcolor{stringliteral}{"{}simulationTime"{}},\ \textcolor{stringliteral}{"{}simulationTime"{}},\ simulationTime);}
+\DoxyCodeLine{00246\ \ \ \ \ cmd.AddValue\ (\textcolor{stringliteral}{"{}maxPackets"{}},\ \textcolor{stringliteral}{"{}maxPackets"{}},\ maxPackets);}
+\DoxyCodeLine{00247\ \ \ \ \ cmd.Parse\ (argc,\ argv);}
+\DoxyCodeLine{00248\ \ \ }
+\DoxyCodeLine{00249\ \ \ \ \ Time::SetResolution\ (Time::NS);}
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{comment}{//LogComponentEnable\ ("{}UdpEchoClientApplication"{},\ LOG\_LEVEL\_ALL);}}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{comment}{//LogComponentEnable\ ("{}UdpEchoServerApplication"{},\ LOG\_LEVEL\_ALL);}}
+\DoxyCodeLine{00252\ \ \ \ \ LogComponentEnable\ (\textcolor{stringliteral}{"{}SimpleTOR"{}},\ LOG\_LEVEL\_ALL);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00257\ \ \ \ \ NodeContainer\ nodes;}
+\DoxyCodeLine{00261\ \ \ \ \ nodes.Create(7);}
+\DoxyCodeLine{00262\ \ \ \ \ }
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{comment}{//Point\ to\ Point\ links}}
+\DoxyCodeLine{00264\ \ \ \ \ PointToPointHelper\ pointToPoint;}
+\DoxyCodeLine{00268\ \ \ \ \ pointToPoint.SetDeviceAttribute(\textcolor{stringliteral}{"{}DataRate"{}},\ StringValue(\textcolor{stringliteral}{"{}5Mbps"{}}));}
+\DoxyCodeLine{00272\ \ \ \ \ pointToPoint.SetChannelAttribute(\textcolor{stringliteral}{"{}Delay"{}},\ StringValue(\textcolor{stringliteral}{"{}25ms"{}}));\ }
+\DoxyCodeLine{00273\ }
+    \DoxyCodeLine{00277\ \ \ \ \ NetDeviceContainer\ devices[6];}
+\DoxyCodeLine{00281\ \ \ \ \ Ipv4InterfaceContainer\ interfaces[6];}
+\DoxyCodeLine{00282\ \ \ \ \ }
+\DoxyCodeLine{00286\ \ \ \ \ InternetStackHelper\ stack;}
+\DoxyCodeLine{00287\ \ \ \ \ stack.Install(nodes);}
+\DoxyCodeLine{00288\ \ \ \ \ }
+\DoxyCodeLine{00292\ \ \ \ \ Ipv4AddressHelper\ address;}
+\DoxyCodeLine{00293\ \ \ \ \ }
+\DoxyCodeLine{00297\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.1.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00298\ \ \ \ \ interfaces[0]\ =\ address.Assign(pointToPoint.Install(nodes.Get(0),\ nodes.Get(1)));}
+\DoxyCodeLine{00299\ \ \ \ \ }
+\DoxyCodeLine{00300\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.2.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00301\ \ \ \ \ interfaces[1]\ =\ address.Assign(pointToPoint.Install(nodes.Get(1),\ nodes.Get(2)));}
+\DoxyCodeLine{00302\ \ \ \ \ }
+\DoxyCodeLine{00303\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.3.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00304\ \ \ \ \ interfaces[2]\ =\ address.Assign(pointToPoint.Install(nodes.Get(2),\ nodes.Get(3)));}
+\DoxyCodeLine{00305\ \ \ \ \ }
+\DoxyCodeLine{00306\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.4.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00307\ \ \ \ \ interfaces[3]\ =\ address.Assign(pointToPoint.Install(nodes.Get(3),\ nodes.Get(4)));}
+\DoxyCodeLine{00308\ \ \ \ \ }
+\DoxyCodeLine{00309\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.5.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00310\ \ \ \ \ interfaces[4]\ =\ address.Assign(pointToPoint.Install(nodes.Get(4),\ nodes.Get(5)));}
+\DoxyCodeLine{00311\ \ \ \ \ }
+\DoxyCodeLine{00312\ \ \ \ \ address.SetBase(\textcolor{stringliteral}{"{}10.1.6.0"{}},\ \textcolor{stringliteral}{"{}255.255.255.0"{}});}
+\DoxyCodeLine{00313\ \ \ \ \ interfaces[5]\ =\ address.Assign(pointToPoint.Install(nodes.Get(5),\ nodes.Get(6)));}
+\DoxyCodeLine{00314\ \ \ \ \ }
+\DoxyCodeLine{00315\ \ \ \ \ Ipv4GlobalRoutingHelper::PopulateRoutingTables();}
+\DoxyCodeLine{00316\ \ \ \ \ }
+\DoxyCodeLine{00317\ \ \ \ \ UdpEchoServerHelper\ echoServer(9);}
+\DoxyCodeLine{00318\ \ \ \ \ ApplicationContainer\ serverApp\ =\ echoServer.Install(nodes.Get(6));}
+\DoxyCodeLine{00319\ \ \ \ \ }
+\DoxyCodeLine{00323\ \ \ \ \ serverApp.Start(Seconds(1.0));}
+\DoxyCodeLine{00327\ \ \ \ \ serverApp.Stop(Seconds(simulationTime));}
+\DoxyCodeLine{00328\ \ \ \ \ }
+\DoxyCodeLine{00329\ \ \ \ \ UdpEchoClientHelper\ echoClient(interfaces[5].GetAddress(1),\ 9);}
+\DoxyCodeLine{00330\ \ \ \ \ echoClient.SetAttribute(\textcolor{stringliteral}{"{}MaxPackets"{}},\ UintegerValue(maxPackets));}
+\DoxyCodeLine{00331\ \ \ \ \ echoClient.SetAttribute(\textcolor{stringliteral}{"{}Interval"{}},\ TimeValue(Seconds(0.1)));}
+\DoxyCodeLine{00332\ \ \ \ \ }
+\DoxyCodeLine{00333\ \ \ \ \ ApplicationContainer\ clientApp\ =\ echoClient.Install(nodes.Get(0));}
+\DoxyCodeLine{00334\ \ \ \ \ clientApp.Start(Seconds(1.0));}
+\DoxyCodeLine{00335\ \ \ \ \ clientApp.Stop(Seconds(simulationTime));}
+\DoxyCodeLine{00336\ \ \ \ \ }
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{comment}{//\ Connect\ trace\ sources\ for\ packet\ tracking}}
+\DoxyCodeLine{00338\ \ \ \ \ Config::ConnectWithoutContext(\textcolor{stringliteral}{"{}/NodeList/*/ApplicationList/*/\$ns3::UdpEchoClient/Tx"{}},\ MakeCallback(\&\mbox{\hyperlink{TOR_8cc_a0a0b614045eabac5ae39068c751bc13c}{SentPacket}}));}
+\DoxyCodeLine{00339\ \ \ \ \ Config::ConnectWithoutContext(\textcolor{stringliteral}{"{}/NodeList/*/ApplicationList/*/\$ns3::UdpEchoServer/Rx"{}},\ MakeCallback(\&\mbox{\hyperlink{TOR_8cc_ad4f31207f9f4aa27f8b98371bac2c43a}{ReceivedPacket}}));}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{comment}{//\ Mobility\ Setup}}
+\DoxyCodeLine{00342\ \ \ \ \ MobilityHelper\ mobility;}
+\DoxyCodeLine{00346\ \ \ \ \ mobility.SetPositionAllocator(\textcolor{stringliteral}{"{}ns3::GridPositionAllocator"{}},}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}MinX"{}},\ DoubleValue(50.0),\ }
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}MinY"{}},\ DoubleValue(80.0),\ \ }
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}DeltaX"{}},\ DoubleValue(60.0),\ }
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}DeltaY"{}},\ DoubleValue(70.0),}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}GridWidth"{}},\ UintegerValue(4),}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}LayoutType"{}},\ StringValue(\textcolor{stringliteral}{"{}RowFirst"{}}));}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \ \ mobility.SetMobilityModel(\textcolor{stringliteral}{"{}ns3::ConstantPositionMobilityModel"{}});}
+\DoxyCodeLine{00355\ \ \ \ \ mobility.Install(nodes);}
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{comment}{//\ NetAnim}}
+\DoxyCodeLine{00361\ \ \ \ \ AnimationInterface\ anim(\textcolor{stringliteral}{"{}TOR.xml"{}});}
+\DoxyCodeLine{00365\ \ \ \ \ anim.SetMaxPktsPerTraceFile(5000);}
+\DoxyCodeLine{00372\ \ \ \ \ anim.UpdateNodeDescription(0,\ \textcolor{stringliteral}{"{}Client"{}});}
+\DoxyCodeLine{00373\ \ \ \ \ anim.UpdateNodeDescription(1,\ \textcolor{stringliteral}{"{}Entry\ Guard"{}});}
+\DoxyCodeLine{00374\ \ \ \ \ anim.UpdateNodeDescription(2,\ \textcolor{stringliteral}{"{}Relay\ 1"{}});}
+\DoxyCodeLine{00375\ \ \ \ \ anim.UpdateNodeDescription(3,\ \textcolor{stringliteral}{"{}Relay\ 2"{}});}
+\DoxyCodeLine{00376\ \ \ \ \ anim.UpdateNodeDescription(4,\ \textcolor{stringliteral}{"{}Relay\ 3"{}});}
+\DoxyCodeLine{00377\ \ \ \ \ anim.UpdateNodeDescription(5,\ \textcolor{stringliteral}{"{}Exit"{}});}
+\DoxyCodeLine{00378\ \ \ \ \ anim.UpdateNodeDescription(6,\ \textcolor{stringliteral}{"{}Destination"{}});}
+\DoxyCodeLine{00379\ \ \ \ \ }
+\DoxyCodeLine{00380\ \ \ \ \ anim.UpdateNodeColor(0,\ 255,\ 0,\ 0);\ \textcolor{comment}{//\ Red\ for\ Client}}
+\DoxyCodeLine{00381\ \ \ \ \ anim.UpdateNodeColor(1,\ 0,\ 255,\ 0);\ \textcolor{comment}{//\ Green\ for\ Entry\ Guard}}
+\DoxyCodeLine{00382\ \ \ \ \ anim.UpdateNodeColor(2,\ 0,\ 0,\ 255);\ \textcolor{comment}{//\ Blue\ for\ Relay\ 1}}
+\DoxyCodeLine{00383\ \ \ \ \ anim.UpdateNodeColor(3,\ 255,\ 255,\ 0);\ \textcolor{comment}{//\ Yellow\ for\ Relay\ 2}}
+\DoxyCodeLine{00384\ \ \ \ \ anim.UpdateNodeColor(4,\ 255,\ 0,\ 255);\ \textcolor{comment}{//\ Purple\ for\ Relay\ 3}}
+\DoxyCodeLine{00385\ \ \ \ \ anim.UpdateNodeColor(5,\ 0,\ 255,\ 255);\ \textcolor{comment}{//\ Cyan\ for\ Exit}}
+\DoxyCodeLine{00386\ \ \ \ \ anim.UpdateNodeColor(6,\ 128,\ 128,\ 128);\ \textcolor{comment}{//\ Gray\ for\ Destination}}
+\DoxyCodeLine{00387\ \ \ \ \ ;}
+\DoxyCodeLine{00388\ \ \ \ \ }
+\DoxyCodeLine{00392\ \ \ \ \ pointToPoint.EnablePcapAll(\textcolor{stringliteral}{"{}tor\_packet\_trace"{}});}
+\DoxyCodeLine{00393\ \ \ \ \ }
+\DoxyCodeLine{00394\ \ \ \ \ Simulator::Schedule(Seconds(simulationTime),\ \&\mbox{\hyperlink{TOR_8cc_a41f5bae5e91f6ddd8fe8ef4e4ea22fb0}{Ratio}});}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00399\ \ \ \ \ Simulator::Run();}
+\DoxyCodeLine{00403\ \ \ \ \ Simulator::Destroy();}
+\DoxyCodeLine{00404\ \ \ \ \ }
+\DoxyCodeLine{00408\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00409\ \}}
+
+\end{DoxyCode}
+\Hypertarget{TOR_8cc_a0ca1a985b4e0e5889caa42b800cd500c}\label{TOR_8cc_a0ca1a985b4e0e5889caa42b800cd500c} 
+\index{TOR.cc@{TOR.cc}!NS\_LOG\_COMPONENT\_DEFINE@{NS\_LOG\_COMPONENT\_DEFINE}}
+\index{NS\_LOG\_COMPONENT\_DEFINE@{NS\_LOG\_COMPONENT\_DEFINE}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{NS\_LOG\_COMPONENT\_DEFINE()}{NS\_LOG\_COMPONENT\_DEFINE()}}
+{\footnotesize\ttfamily NS\+\_\+\+LOG\+\_\+\+COMPONENT\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{"{}Simple\+TOR"{}}]{ }\end{DoxyParamCaption})}
+
+\Hypertarget{TOR_8cc_a41f5bae5e91f6ddd8fe8ef4e4ea22fb0}\label{TOR_8cc_a41f5bae5e91f6ddd8fe8ef4e4ea22fb0} 
+\index{TOR.cc@{TOR.cc}!Ratio@{Ratio}}
+\index{Ratio@{Ratio}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{Ratio()}{Ratio()}}
+{\footnotesize\ttfamily void Ratio (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+This function allows the tor network statistic to be printed out, which prints all relevant data about the network simulation. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00184}{184}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n===\ TOR\ network\ statistics\ ===\(\backslash\)n"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00187\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Transmission\ summary:"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00188\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00189\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Total\ bytes\ sent:\(\backslash\)t\ \ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_ae221e59bbcf8c62ba971945955311be4}{m\_bytes\_sent}}\ <<\ std::endl;}
+\DoxyCodeLine{00190\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Total\ bytes\ received:\(\backslash\)t\ \ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\_bytes\_received}}\ <<\ std::endl;}
+\DoxyCodeLine{00191\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Total\ packets\ sent:\(\backslash\)t\ \ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}{m\_packets\_sent}}\ <<\ std::endl;}
+\DoxyCodeLine{00192\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Total\ packets\ received:\(\backslash\)t\ \ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}{m\_packets\_received}}\ <<\ std::endl;}
+\DoxyCodeLine{00193\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Delivery\ ratio\ (bytes):\(\backslash\)t\ \ "{}}\ <<\ (float)\mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\_bytes\_received}}/(\textcolor{keywordtype}{float})\mbox{\hyperlink{TOR_8cc_ae221e59bbcf8c62ba971945955311be4}{m\_bytes\_sent}}\ *\ 100\ <<\ \textcolor{stringliteral}{"{}\%"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00194\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Delivery\ ratio\ (packets):\ "{}}\ <<\ (float)\mbox{\hyperlink{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}{m\_packets\_received}}/(\textcolor{keywordtype}{float})\mbox{\hyperlink{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}{m\_packets\_sent}}\ *\ 100\ <<\ \textcolor{stringliteral}{"{}\%"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{double}\ duration\ =\ Simulator::Now().GetSeconds();}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordtype}{double}\ throughputBps\ =\ (\mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\_bytes\_received}}\ *\ 8.0)\ /\ duration;}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordflow}{if}\ (duration\ >\ 0)\{}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Troughput\ (bps):\(\backslash\)t\ \ "{}}\ <<\ throughputBps\ <<\ \textcolor{stringliteral}{"{}\ bps\ "{}}\ <<\ std::endl;}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Troughput\ (kbps):\(\backslash\)t\ \ "{}}\ <<\ throughputBps/1000.0\ <<\ \textcolor{stringliteral}{"{}\ kbps\ "{}}\ <<\ std::endl;}
+\DoxyCodeLine{00202\ \ \ \ \ \}\ \ \ }
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad}{packetCount}}\ >\ 0)\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Average\ end-\/to-\/end\ delay:\ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_a7f36ed0a326cc9c48667240a3f535d58}{totalDelay}}/\mbox{\hyperlink{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad}{packetCount}}\ <<\ \textcolor{stringliteral}{"{}s"{}}\ <<\ std::endl;\ }
+\DoxyCodeLine{00207\ \ \ \ \ }
+\DoxyCodeLine{00208\ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00209\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Created\ output\ file:\ output.txt"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00213\ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \}}
+
+\end{DoxyCode}
+\Hypertarget{TOR_8cc_ad4f31207f9f4aa27f8b98371bac2c43a}\label{TOR_8cc_ad4f31207f9f4aa27f8b98371bac2c43a} 
+\index{TOR.cc@{TOR.cc}!ReceivedPacket@{ReceivedPacket}}
+\index{ReceivedPacket@{ReceivedPacket}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{ReceivedPacket()}{ReceivedPacket()}}
+{\footnotesize\ttfamily static void Received\+Packet (\begin{DoxyParamCaption}\item[{Ptr$<$ const Packet $>$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is a function which handles the process of receiving packets. 
+
+This will allow an output file to be created, also, data can be appended to this file because of std\+::ios\+::app which is included. If we omit that, we would keep creating the file without appending data to it, which wouldn\textquotesingle{}t be a solution because we need to track the data for every packet so that we can eventually use gnuplot to plot the captured data, not just the final data for the final packet which was sent.
+
+This variable stores the time when the packet was received.
+
+This variable stores the time when the packet was sent.
+
+This variable stores the packet delay which is calculated by subtracting start time from the end time.
+
+This represents the time when the packet was received.
+
+This variable stores the throughput value, which is calculated by multiplying received bytes by 8 and dividing that by the duration. The value for the throughput is displayed in bits per second.
+
+Output file gets created with contents of\+:
+
+
+\begin{DoxyItemize}
+\item Duration;
+\item Sent packets;
+\item Received packets;
+\item Throughput in bits per second;
+\item Packet delay.
+\end{DoxyItemize}
+
+This allows the output file to be closed after writing.
+
+This message prints the time when the packet was received.
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00116}{116}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00120\ \ \ \ \ std::ofstream\ output\_file(\textcolor{stringliteral}{"{}output.txt"{}},\ std::ios::app);\ \textcolor{comment}{//\ This\ will\ create\ and\ open\ the\ file\ and\ append\ data\ to\ it.}}
+\DoxyCodeLine{00121\ \ \ \ \ }
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\_bytes\_received}}\ +=\ p-\/>GetSize();}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}{m\_packets\_received}}++;}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{00126\ \textcolor{comment}{\ \ \ \ //HELP\ LINES\ USED\ FOR\ TESTING }}
+\DoxyCodeLine{00127\ \textcolor{comment}{\ \ \ \ std::cout\ <<\ "{}\(\backslash\)n\ ..................ReceivedPacket....."{}\ <<\ p-\/>GetUid()\ <<\ "{}..."{}\ <<\ \ p-\/>GetSize()\ <<\ "{}.......\ \ \(\backslash\)n"{}; }}
+\DoxyCodeLine{00128\ \textcolor{comment}{\ \ \ \ p-\/>Print(std::cout); }}
+\DoxyCodeLine{00129\ \textcolor{comment}{\ \ \ \ std::cout\ <<\ "{}\(\backslash\)n\ ............................................\ \ \(\backslash\)n"{}; }}
+\DoxyCodeLine{00130\ \textcolor{comment}{\ \ \ \ */}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ endTime\ =\ Simulator::Now().GetSeconds();}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ startTime\ =\ \mbox{\hyperlink{TOR_8cc_a661b93e41fb1458d06f45ef6d878007b}{PacketStartTimes}}[p-\/>GetUid()];}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ packetDelay\ =\ endTime\ -\/\ startTime;}
+\DoxyCodeLine{00144\ \ \ \ \ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Ptr<Packet>\ packetCopy\ =\ p-\/>Copy();}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//DecryptPacket\ (packetCopy);}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{TOR_8cc_a7f36ed0a326cc9c48667240a3f535d58}{totalDelay}}\ +=\ packetDelay;}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad}{packetCount}}++;}
+   \DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ duration\ =\ Simulator::Now().GetSeconds();}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ throughputBps\ =\ (\mbox{\hyperlink{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}{m\_bytes\_received}}\ *\ 8.0)\ /\ duration;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{comment}{//double\ averageDelay\ =\ totalDelay/packetCount;}}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ output\_file\ <<\ duration\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}{m\_packets\_sent}}\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ \mbox{\hyperlink{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}{m\_packets\_received}}\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ throughputBps\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ packetDelay\ <<\ std::endl;\ \textcolor{comment}{//\ This\ will\ create\ an\ output\ file\ with:\ duration,\ sent\ packets,\ received\ packets,\ throughput\ and\ the\ packet\ delay\ with\ spaces\ between\ them.}}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ output\_file.close();\ \textcolor{comment}{//\ This\ closes\ the\ output\ file\ after\ writing.}}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)nPacket\ "{}}\ <<\ p-\/>GetUid()+1\ <<\ \textcolor{stringliteral}{"{}\ received\ at\ time\ "{}}\ <<\ endTime\ <<\ \textcolor{stringliteral}{"{}s\ with\ delay\ of:\ "{}}<<\ packetDelay\ <<\ \textcolor{stringliteral}{"{}\ s\ "{}}\ <<\ std::endl;}
+\DoxyCodeLine{00178\ \ \ \ \ }
+\DoxyCodeLine{00179\ \}}
+
+\end{DoxyCode}
+\Hypertarget{TOR_8cc_a0a0b614045eabac5ae39068c751bc13c}\label{TOR_8cc_a0a0b614045eabac5ae39068c751bc13c} 
+\index{TOR.cc@{TOR.cc}!SentPacket@{SentPacket}}
+\index{SentPacket@{SentPacket}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{SentPacket()}{SentPacket()}}
+{\footnotesize\ttfamily static void Sent\+Packet (\begin{DoxyParamCaption}\item[{Ptr$<$ const Packet $>$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is a function which handles the sending of packets. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & This is the packet that is being sent. \\
+\hline
+\end{DoxyParams}
+The number of sent bytes gets increased, it adds the size of the packet that is being sent to the current amount of sent bytes.
+
+The variable which tracks the number of sent packets increases.
+
+This if statement checks if the first packet is being sent, and if it is, the variable which is declared for storing the time of the first sent packets actually gets that value assigned to itself.
+
+The start time of each sent packet gets extracted. This applies to every packet and the Uid of that packet gets extracted so that the message which prints at what time the specific packet got sent.
+
+This message prints when a certain packet got sent.
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00085}{85}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+ \DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_ae221e59bbcf8c62ba971945955311be4}{m\_bytes\_sent}}\ +=\ p-\/>GetSize();}
+ \DoxyCodeLine{00093\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}{m\_packets\_sent}}++;}
+ \DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{TOR_8cc_abf1bc45f0deaf6cfc46353a53611dbf6}{g\_firstPacket}})\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{TOR_8cc_aac3ae523fec16d778d774478f3df0465}{g\_firstPacketTime}}\ =\ Simulator::Now();}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{TOR_8cc_abf1bc45f0deaf6cfc46353a53611dbf6}{g\_firstPacket}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00098\ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ }
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_a7a3fb7382450bca51ad96938e2564fed}{g\_lastPacketTime}}\ =\ Simulator::Now();}
+\DoxyCodeLine{00101\ \ \ \ \ }
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{TOR_8cc_a661b93e41fb1458d06f45ef6d878007b}{PacketStartTimes}}[p-\/>GetUid()]\ =\ Simulator::Now().GetSeconds();\ }
+\DoxyCodeLine{00109\ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)nPacket\ "{}}\ <<\ p-\/>GetUid()+1\ <<\ \textcolor{stringliteral}{"{}\ sent\ at\ time\ "{}}\ <<\ \ \ \ Simulator::Now().GetSeconds()\ <<\ \textcolor{stringliteral}{"{}s"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00110\ \ \ \ }
+\DoxyCodeLine{00111\ \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{TOR_8cc_abf1bc45f0deaf6cfc46353a53611dbf6}\label{TOR_8cc_abf1bc45f0deaf6cfc46353a53611dbf6} 
+\index{TOR.cc@{TOR.cc}!g\_firstPacket@{g\_firstPacket}}
+\index{g\_firstPacket@{g\_firstPacket}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{g\_firstPacket}{g\_firstPacket}}
+{\footnotesize\ttfamily bool g\+\_\+first\+Packet = true\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is a boolean value for the first packet which can be true or false. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00046}{46}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_aac3ae523fec16d778d774478f3df0465}\label{TOR_8cc_aac3ae523fec16d778d774478f3df0465} 
+\index{TOR.cc@{TOR.cc}!g\_firstPacketTime@{g\_firstPacketTime}}
+\index{g\_firstPacketTime@{g\_firstPacketTime}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{g\_firstPacketTime}{g\_firstPacketTime}}
+{\footnotesize\ttfamily Time g\+\_\+first\+Packet\+Time = Seconds(0.\+0)\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is the variable which gets assigned a value of the time when the first packet was transmitted. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00038}{38}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a7a3fb7382450bca51ad96938e2564fed}\label{TOR_8cc_a7a3fb7382450bca51ad96938e2564fed} 
+\index{TOR.cc@{TOR.cc}!g\_lastPacketTime@{g\_lastPacketTime}}
+\index{g\_lastPacketTime@{g\_lastPacketTime}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{g\_lastPacketTime}{g\_lastPacketTime}}
+{\footnotesize\ttfamily Time g\+\_\+last\+Packet\+Time = Seconds(0.\+0)\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is the variable which gets assigned a value of the time when the last packet was transmitted. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00042}{42}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6}\label{TOR_8cc_a2deddc0987bf6a7894445abb92e9dab6} 
+\index{TOR.cc@{TOR.cc}!m\_bytes\_received@{m\_bytes\_received}}
+\index{m\_bytes\_received@{m\_bytes\_received}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_bytes\_received}{m\_bytes\_received}}
+{\footnotesize\ttfamily uint32\+\_\+t m\+\_\+bytes\+\_\+received = 0}
+
+
+
+This variable stores the amount of received bytes. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00064}{64}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_ae221e59bbcf8c62ba971945955311be4}\label{TOR_8cc_ae221e59bbcf8c62ba971945955311be4} 
+\index{TOR.cc@{TOR.cc}!m\_bytes\_sent@{m\_bytes\_sent}}
+\index{m\_bytes\_sent@{m\_bytes\_sent}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_bytes\_sent}{m\_bytes\_sent}}
+{\footnotesize\ttfamily uint32\+\_\+t m\+\_\+bytes\+\_\+sent = 0}
+
+
+
+This is an unsigned variable type, which means that it cannot have negative values, and the range for the numbers it can have is from 0 to 2\texorpdfstring{$^\wedge$}{\string^}32. This variable stores the amount of sent bytes. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00060}{60}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a2b33f6ab9003385a44c5b3b0047fcb19}\label{TOR_8cc_a2b33f6ab9003385a44c5b3b0047fcb19} 
+\index{TOR.cc@{TOR.cc}!m\_delayTable@{m\_delayTable}}
+\index{m\_delayTable@{m\_delayTable}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_delayTable}{m\_delayTable}}
+{\footnotesize\ttfamily std\+::map$<$uint32\+\_\+t, double$>$ m\+\_\+delay\+Table}
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00078}{78}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51}\label{TOR_8cc_ab708150b427e3506ef4b0b1e5499be51} 
+\index{TOR.cc@{TOR.cc}!m\_packets\_received@{m\_packets\_received}}
+\index{m\_packets\_received@{m\_packets\_received}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_packets\_received}{m\_packets\_received}}
+{\footnotesize\ttfamily uint32\+\_\+t m\+\_\+packets\+\_\+received = 0}
+
+
+
+This variable stores the amount of received packets. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00072}{72}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88}\label{TOR_8cc_aaeaf6516611fa56ab0548ea842732d88} 
+\index{TOR.cc@{TOR.cc}!m\_packets\_sent@{m\_packets\_sent}}
+\index{m\_packets\_sent@{m\_packets\_sent}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_packets\_sent}{m\_packets\_sent}}
+{\footnotesize\ttfamily uint32\+\_\+t m\+\_\+packets\+\_\+sent = 0}
+
+
+
+This variable stores the amount of sent packets. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00068}{68}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a433017f86ae7754cbf9ef71bb138aca9}\label{TOR_8cc_a433017f86ae7754cbf9ef71bb138aca9} 
+\index{TOR.cc@{TOR.cc}!m\_time@{m\_time}}
+\index{m\_time@{m\_time}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{m\_time}{m\_time}}
+{\footnotesize\ttfamily double m\+\_\+time = 0}
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00075}{75}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a672e6b876a80d156ed72c507ee968b7c}\label{TOR_8cc_a672e6b876a80d156ed72c507ee968b7c} 
+\index{TOR.cc@{TOR.cc}!nodeNames@{nodeNames}}
+\index{nodeNames@{nodeNames}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{nodeNames}{nodeNames}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::string$>$ node\+Names = \{"{}Client"{}, "{}Entry"{}, "{}Relay1"{}, "{}Relay2"{}, "{}Relay3"{}, "{}Exit"{}, "{}Destination"{}\}}
+
+
+
+Here, we are declaring node names for all nodes in the network topology. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00033}{33}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00033\ \{\textcolor{stringliteral}{"{}Client"{}},\ \textcolor{stringliteral}{"{}Entry"{}},\ \textcolor{stringliteral}{"{}Relay1"{}},\ \textcolor{stringliteral}{"{}Relay2"{}},\ \textcolor{stringliteral}{"{}Relay3"{}},\ \textcolor{stringliteral}{"{}Exit"{}},\ \textcolor{stringliteral}{"{}Destination"{}}\};}
+
+\end{DoxyCode}
+\Hypertarget{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad}\label{TOR_8cc_af4aa4a4cc5c767005e8fd10bb0d1acad} 
+\index{TOR.cc@{TOR.cc}!packetCount@{packetCount}}
+\index{packetCount@{packetCount}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{packetCount}{packetCount}}
+{\footnotesize\ttfamily int packet\+Count = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+@btief This is a variable, type int, and it stores packet count. 
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00056}{56}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a661b93e41fb1458d06f45ef6d878007b}\label{TOR_8cc_a661b93e41fb1458d06f45ef6d878007b} 
+\index{TOR.cc@{TOR.cc}!PacketStartTimes@{PacketStartTimes}}
+\index{PacketStartTimes@{PacketStartTimes}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{PacketStartTimes}{PacketStartTimes}}
+{\footnotesize\ttfamily std\+::map$<$uint32\+\_\+t, double$>$ Packet\+Start\+Times\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00048}{48}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a0d28d757f01052039665d254fab8e99b}\label{TOR_8cc_a0d28d757f01052039665d254fab8e99b} 
+\index{TOR.cc@{TOR.cc}!packetTracker@{packetTracker}}
+\index{packetTracker@{packetTracker}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{packetTracker}{packetTracker}}
+{\footnotesize\ttfamily std\+::map$<$uint32\+\_\+t, \mbox{\hyperlink{structPacketTrace}{Packet\+Trace}}$>$ packet\+Tracker}
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00029}{29}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
+\Hypertarget{TOR_8cc_a7f36ed0a326cc9c48667240a3f535d58}\label{TOR_8cc_a7f36ed0a326cc9c48667240a3f535d58} 
+\index{TOR.cc@{TOR.cc}!totalDelay@{totalDelay}}
+\index{totalDelay@{totalDelay}!TOR.cc@{TOR.cc}}
+\doxysubsubsection{\texorpdfstring{totalDelay}{totalDelay}}
+{\footnotesize\ttfamily double total\+Delay = 0.\+0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+This is a variable, type double, which means it stores decimal values, and it stores the value of the total delay of the network. 
+
+
+
+Definition at line \mbox{\hyperlink{TOR_8cc_source_l00052}{52}} of file \mbox{\hyperlink{TOR_8cc_source}{TOR.\+cc}}.
+
