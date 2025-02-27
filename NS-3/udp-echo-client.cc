@@ -343,24 +343,23 @@ UdpEchoClient::Send()
 /**
  * @brief Creating a message that will be packet's data.
  * */
-        std::string message = "Hello World!"; /**< This is a message that will be sent as packet's data. Counting all of the characters (including the space and the question mark), this will amount to 12 bytes. */
-        uint32_t dataSize = message.size(); /**< This returns the size of the message. */
+        std::string message = "Hello World!"; /**< This is a message that will be sent as packet's data. std::string is used to declare a variable with the string type, and we always put a semicolon at the end of the line of code. */
+        uint32_t dataSize = message.size(); /**< This returns the size of the message. uint32_t can hold up to 2^32 values, and here we get the size of the message and assign it to the dataSize variable. */
 
 /**
  * @brief Allocate a buffer to hold the message data.
  * */
-        uint8_t* dataBuffer = new uint8_t[dataSize];
+        uint8_t* dataBuffer = new uint8_t[dataSize]; /** This line of code allocates a block of memory for an array of uint8_t elements. The size of the array is determined by the dataSize variable. uint8_t* is a pointer to the uint8_t variable and it stores the memory address of that variable. */
         memcpy(dataBuffer, message.c_str(), dataSize); /**< This copies dataSize number of bits from message.c_str to the dataBuffer. */ 
        
-        uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This declares key which will be used in the encryption process.*/
+        uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This declares keys which will be used in the encryption process. In the encryption process, the for loop iterates through this array from the first to the last element of the array, while in the decryption process it goes from the last to the first element of the array. */
 
-        std::cout << "\n"; 
+        std::cout << "\n"; /**< This allows us to print a new line */
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Packet data before encryption: ";
 /**
  * @brief This for loops allows printing of packet data before encryption.
  * */
-        
         for (uint32_t i = 0; i < dataSize; i++){
           std::cout << dataBuffer[i];
         }
@@ -368,8 +367,6 @@ UdpEchoClient::Send()
         std::cout << "" << std::endl; 
         std::cout << "-------------------------------" << std::endl;
         std::cout << "" << std::endl;
-        
-
         std::cout << "-------------------------------" << std::endl;
         
         // XOR encryption.
@@ -378,16 +375,16 @@ UdpEchoClient::Send()
 /**
  * @brief This loop essentially checks if the xor_counter is 6, and if it isn't, it breaks out of the loop. This is because the goal of this is to create 6 encryption layers with 6 different keys which have been specified in the keys array.
  * */ 
-        while (true){
-          std::cout << "Packet data after encryption with layer " << xor_counter+1 << ": ";
-          for (uint32_t i = 0; i < dataSize; i++) {
-            dataBuffer[i] ^= keys[xor_counter];  // XOR with a key.
-            std::cout << dataBuffer[i];
-          }
-          std::cout << "" << std::endl;
-          xor_counter++;
-          if (xor_counter == 6){
-            break;
+        while (true){ /**< We initiate a while loop */
+          std::cout << "Packet data after encryption with layer " << xor_counter+1 << ": "; /**< Here, packet data after encryption on a certain layer gets printed. When the xor_counter is 0 for example, the XOR key that will be used for encryption is the 'A' character, and the layer which will be printed is 0 + 1 = 1. */
+          for (uint32_t i = 0; i < dataSize; i++) { /**< This loop starts at 0 and stops when i ends up having the value of dataSize. We need this loop to iterate through the message which we are trying to encrypt. i is started with the uint32_t type, because if we assigned int as a type to it we would get a type mismatch error because of the dataSize type */
+            dataBuffer[i] ^= keys[xor_counter];  /**< This is the dataBuffer which stores the message sent as packet data. We are iterating through that message in such a way that each character of that message ges encrypted with a specific XOR key chosen by the xor_counter which gets incremented by one with every iteration. */
+            std::cout << dataBuffer[i]; /**< We are printing encrypted message data. Notice that we didn't use std::endl yet, because that would be printing those characters on a new line every single time, which is unwanted behaviour. */
+          } 
+          std::cout << "" << std::endl; /**< This is happening outside the for loop, this prints a new line. */
+          xor_counter++; /**< The xor_counter is incremented so that we can move onto the next key of the array. */
+          if (xor_counter == 6){ /**< When the xor_counter gets assigned a value of 6, the loop breaks because we would otherwise try to access values of the array which aren't there (there are 6 keys: 0-5). */
+            break; /**< We break out of the loop in case the xor_counter gets assigned the value of 6. */
           }
         }
         
@@ -396,13 +393,12 @@ UdpEchoClient::Send()
 /**
  * @brief Create the packet with the encrypted data.
  * */
-        p = Create<Packet>(dataBuffer, dataSize);
+        p = Create<Packet>(dataBuffer, dataSize); /**< Finally, the packet with encrypted data gets created, and we pass the values of the dataBuffer and dataSize to it. */
 
 /**
  * @brief Clean up the buffer after creating the packet.
  * */
         delete[] dataBuffer;
-
     }
     Address localAddress;
     m_socket->GetSockName(localAddress);

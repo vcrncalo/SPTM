@@ -164,12 +164,12 @@ UdpEchoServer::HandleRead(Ptr<Socket> socket)
         m_rxTrace(packet);
         m_rxTraceWithAddresses(packet, from, localAddress);
 
-        uint32_t packet_size = packet->GetSize(); /**< Defining packet size.*/
-        uint8_t* buffer = new uint8_t[packet_size]; /**< Creating a packet buffer.*/
+        uint32_t packet_size = packet->GetSize(); /**< Defining packet size. We are getting the value of the packet's size which was sent and we assign it's value to the packet_size variable, with the type of uint32_t. */
+        uint8_t* buffer = new uint8_t[packet_size]; /**< Creating a packet buffer. We are creating a new buffer with the size of the packet_size which we've gotten before. */
 
-        packet->CopyData(buffer, packet_size);       /**< Copying packet data to the buffer.*/
+        packet->CopyData(buffer, packet_size); /**< Copying packet data to the buffer. This copies data from the packet into the buffer, and it copies packet_size amount of bytes. */
 
-       uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This is the original order of keys, but now we need to acces them from last to first.*/ 
+       uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This is the original order of keys, but now we need to acces them from last to first. When it comes to the decryption process. */ 
         std::cout << "" << std::endl;
         std::cout << "-------------------------------" << std::endl;
         std::cout << "Packet data before decryption: ";      
