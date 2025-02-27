@@ -245,7 +245,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        uint32_t packet_size = packet-&gt;GetSize(); </div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        uint8_t* buffer = <span class="keyword">new</span> uint8_t[packet_size]; </div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        packet-&gt;CopyData(buffer, packet_size);       </div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        packet-&gt;CopyData(buffer, packet_size); </div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       uint8_t keys[] = {<span class="charliteral">&#39;A&#39;</span>, <span class="charliteral">&#39;B&#39;</span>, <span class="charliteral">&#39;C&#39;</span>, <span class="charliteral">&#39;F&#39;</span>, <span class="charliteral">&#39;E&#39;</span>, <span class="charliteral">&#39;D&#39;</span>}; </div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;-------------------------------&quot;</span> &lt;&lt; std::endl;</div>

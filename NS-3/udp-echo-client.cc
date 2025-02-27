@@ -350,7 +350,7 @@ UdpEchoClient::Send()
  * @brief Allocate a buffer to hold the message data.
  * */
         uint8_t* dataBuffer = new uint8_t[dataSize];
-        memcpy(dataBuffer, message.c_str(), dataSize); /**< This copies dataSize number of bits from message.c_str to the dataBuffer.*/ 
+        memcpy(dataBuffer, message.c_str(), dataSize); /**< This copies dataSize number of bits from message.c_str to the dataBuffer. */ 
        
         uint8_t keys[] = {'A', 'B', 'C', 'F', 'E', 'D'}; /**< This declares key which will be used in the encryption process.*/
 

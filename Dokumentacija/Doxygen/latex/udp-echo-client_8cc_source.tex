@@ -338,128 +338,124 @@
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00342}00342\ \ \ \ \ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00346}00346\ \ \ \ \ \ \ \ \ std::string\ message\ =\ \textcolor{stringliteral}{"{}Hello\ World!"{}};\ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00347}00347\ \ \ \ \ \ \ \ \ uint32\_t\ dataSize\ =\ message.size();\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00352}00352\ \ \ \ \ \ \ \ \ uint8\_t*\ dataBuffer\ =\ \textcolor{keyword}{new}\ uint8\_t[dataSize];}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00352}00352\ \ \ \ \ \ \ \ \ uint8\_t*\ dataBuffer\ =\ \textcolor{keyword}{new}\ uint8\_t[dataSize];\ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00353}00353\ \ \ \ \ \ \ \ \ memcpy(dataBuffer,\ message.c\_str(),\ dataSize);\ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00355}00355\ \ \ \ \ \ \ \ \ uint8\_t\ keys[]\ =\ \{\textcolor{charliteral}{'A'},\ \textcolor{charliteral}{'B'},\ \textcolor{charliteral}{'C'},\ \textcolor{charliteral}{'F'},\ \textcolor{charliteral}{'E'},\ \textcolor{charliteral}{'D'}\};\ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00357}00357\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};\ }
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00358}00358\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00359}00359\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Packet\ data\ before\ encryption:\ "{}};}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00364}00364\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dataSize;\ i++)\{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ dataBuffer[i];}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00366}00366\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00367}00367\ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00368}00368\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00369}00369\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00370}00370\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00363}00363\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dataSize;\ i++)\{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ dataBuffer[i];}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00365}00365\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00366}00366\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00367}00367\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00368}00368\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00369}00369\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00370}00370\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
 \DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00371}00371\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00372}00372\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00373}00373\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00374}00374\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00375}00375\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ XOR\ encryption.}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00376}00376\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ xor\_counter\ =\ 0;\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00381}00381\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{true})\{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00382}00382\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Packet\ data\ after\ encryption\ with\ layer\ "{}}\ <<\ xor\_counter+1\ <<\ \textcolor{stringliteral}{"{}:\ "{}};}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dataSize;\ i++)\ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ \ \ dataBuffer[i]\ \string^=\ keys[xor\_counter];\ \ \textcolor{comment}{//\ XOR\ with\ a\ key.}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ dataBuffer[i];}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00386}00386\ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00387}00387\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00388}00388\ \ \ \ \ \ \ \ \ \ \ xor\_counter++;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00389}00389\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xor\_counter\ ==\ 6)\{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00390}00390\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00391}00391\ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00392}00392\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00393}00393\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00394}00394\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00395}00395\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00399}00399\ \ \ \ \ \ \ \ \ p\ =\ Create<Packet>(dataBuffer,\ dataSize);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00400}00400\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00404}00404\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ dataBuffer;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00405}00405\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00406}00406\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00407}00407\ \ \ \ \ Address\ localAddress;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00408}00408\ \ \ \ \ m\_socket-\/>GetSockName(localAddress);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00409}00409\ \ \ \ \ \textcolor{comment}{//\ call\ to\ the\ trace\ sinks\ before\ the\ packet\ is\ actually\ sent,}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00410}00410\ \ \ \ \ \textcolor{comment}{//\ so\ that\ tags\ added\ to\ the\ packet\ can\ be\ sent\ as\ well}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00411}00411\ \ \ \ \ m\_txTrace(p);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00412}00412\ \ \ \ \ \textcolor{keywordflow}{if}\ (Ipv4Address::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00413}00413\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00414}00414\ \ \ \ \ \ \ \ \ m\_txTraceWithAddresses(}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00415}00415\ \ \ \ \ \ \ \ \ \ \ \ \ p,}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00416}00416\ \ \ \ \ \ \ \ \ \ \ \ \ localAddress,}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00417}00417\ \ \ \ \ \ \ \ \ \ \ \ \ InetSocketAddress(Ipv4Address::ConvertFrom(m\_peerAddress),\ m\_peerPort));}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00418}00418\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00419}00419\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Ipv6Address::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00420}00420\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00421}00421\ \ \ \ \ \ \ \ \ m\_txTraceWithAddresses(}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00422}00422\ \ \ \ \ \ \ \ \ \ \ \ \ p,}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ localAddress,}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ Inet6SocketAddress(Ipv6Address::ConvertFrom(m\_peerAddress),\ m\_peerPort));}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00425}00425\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00426}00426\ \ \ \ \ m\_socket-\/>Send(p);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00427}00427\ \ \ \ \ ++m\_sent;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00428}00428\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00429}00429\ \ \ \ \ \textcolor{keywordflow}{if}\ (Ipv4Address::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00430}00430\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00431}00431\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00432}00432\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}\ <<\ Ipv4Address::ConvertFrom(m\_peerAddress)}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00433}00433\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}\ <<\ m\_peerPort);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00434}00434\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00435}00435\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Ipv6Address::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00436}00436\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00437}00437\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}\ <<\ Ipv6Address::ConvertFrom(m\_peerAddress)}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}\ <<\ m\_peerPort);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00440}00440\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00441}00441\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (InetSocketAddress::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00442}00442\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00443}00443\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size\ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(m\_peerAddress).GetIpv4()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(m\_peerAddress).GetPort());}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00447}00447\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00448}00448\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Inet6SocketAddress::IsMatchingType(m\_peerAddress))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00449}00449\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00450}00450\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size\ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00452}00452\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(m\_peerAddress).GetIpv6()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(m\_peerAddress).GetPort());}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00454}00454\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00455}00455\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00456}00456\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_sent\ <\ m\_count\ ||\ m\_count\ ==\ 0)}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00457}00457\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00458}00458\ \ \ \ \ \ \ \ \ ScheduleTransmit(m\_interval);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00459}00459\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00460}00460\ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00464}00464\ \textcolor{keywordtype}{void}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00465}00465\ UdpEchoClient::HandleRead(Ptr<Socket>\ socket)}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00466}00466\ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00467}00467\ \ \ \ \ NS\_LOG\_FUNCTION(\textcolor{keyword}{this}\ <<\ socket);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00468}00468\ \ \ \ \ Ptr<Packet>\ packet;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00469}00469\ \ \ \ \ Address\ from;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00470}00470\ \ \ \ \ Address\ localAddress;}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00471}00471\ \ \ \ \ \textcolor{keywordflow}{while}\ ((packet\ =\ socket-\/>RecvFrom(from)))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00472}00472\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00473}00473\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (InetSocketAddress::IsMatchingType(from))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00474}00474\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00475}00475\ \ \ \ \ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ received\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ packet-\/>GetSize()\ <<\ \textcolor{stringliteral}{"{}\ bytes\ from\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(from).GetIpv4()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(from).GetPort());}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00479}00479\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00480}00480\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Inet6SocketAddress::IsMatchingType(from))}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00481}00481\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ received\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ packet-\/>GetSize()\ <<\ \textcolor{stringliteral}{"{}\ bytes\ from\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(from).GetIpv6()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(from).GetPort());}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00486}00486\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00487}00487\ \ \ \ \ \ \ \ \ socket-\/>GetSockName(localAddress);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00488}00488\ \ \ \ \ \ \ \ \ m\_rxTrace(packet);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00489}00489\ \ \ \ \ \ \ \ \ m\_rxTraceWithAddresses(packet,\ from,\ localAddress);}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00490}00490\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00491}00491\ \}}
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00492}00492\ }
-\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00493}00493\ \}\ \textcolor{comment}{//\ Namespace\ ns3}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00372}00372\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ XOR\ encryption.}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00373}00373\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ xor\_counter\ =\ 0;\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00378}00378\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{true})\{\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Packet\ data\ after\ encryption\ with\ layer\ "{}}\ <<\ xor\_counter+1\ <<\ \textcolor{stringliteral}{"{}:\ "{}};\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dataSize;\ i++)\ \{\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ dataBuffer[i]\ \string^=\ keys[xor\_counter];\ \ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00382}00382\ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ dataBuffer[i];\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \}\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}"{}}\ <<\ std::endl;\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ xor\_counter++;\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00386}00386\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xor\_counter\ ==\ 6)\{\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00387}00387\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00388}00388\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00389}00389\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00390}00390\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00391}00391\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00392}00392\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00396}00396\ \ \ \ \ \ \ \ \ p\ =\ Create<Packet>(dataBuffer,\ dataSize);\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00401}00401\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ dataBuffer;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00402}00402\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00403}00403\ \ \ \ \ Address\ localAddress;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00404}00404\ \ \ \ \ m\_socket-\/>GetSockName(localAddress);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00405}00405\ \ \ \ \ \textcolor{comment}{//\ call\ to\ the\ trace\ sinks\ before\ the\ packet\ is\ actually\ sent,}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00406}00406\ \ \ \ \ \textcolor{comment}{//\ so\ that\ tags\ added\ to\ the\ packet\ can\ be\ sent\ as\ well}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00407}00407\ \ \ \ \ m\_txTrace(p);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00408}00408\ \ \ \ \ \textcolor{keywordflow}{if}\ (Ipv4Address::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00409}00409\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00410}00410\ \ \ \ \ \ \ \ \ m\_txTraceWithAddresses(}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00411}00411\ \ \ \ \ \ \ \ \ \ \ \ \ p,}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ localAddress,}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ InetSocketAddress(Ipv4Address::ConvertFrom(m\_peerAddress),\ m\_peerPort));}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00414}00414\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00415}00415\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Ipv6Address::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00416}00416\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00417}00417\ \ \ \ \ \ \ \ \ m\_txTraceWithAddresses(}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00418}00418\ \ \ \ \ \ \ \ \ \ \ \ \ p,}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00419}00419\ \ \ \ \ \ \ \ \ \ \ \ \ localAddress,}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00420}00420\ \ \ \ \ \ \ \ \ \ \ \ \ Inet6SocketAddress(Ipv6Address::ConvertFrom(m\_peerAddress),\ m\_peerPort));}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00421}00421\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00422}00422\ \ \ \ \ m\_socket-\/>Send(p);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00423}00423\ \ \ \ \ ++m\_sent;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00424}00424\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00425}00425\ \ \ \ \ \textcolor{keywordflow}{if}\ (Ipv4Address::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00426}00426\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00427}00427\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}\ <<\ Ipv4Address::ConvertFrom(m\_peerAddress)}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00429}00429\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}\ <<\ m\_peerPort);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00430}00430\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00431}00431\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Ipv6Address::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00432}00432\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00433}00433\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00434}00434\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}\ <<\ Ipv6Address::ConvertFrom(m\_peerAddress)}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00435}00435\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}\ <<\ m\_peerPort);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00436}00436\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00437}00437\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (InetSocketAddress::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00438}00438\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00439}00439\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00440}00440\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size\ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(m\_peerAddress).GetIpv4()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(m\_peerAddress).GetPort());}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00443}00443\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00444}00444\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Inet6SocketAddress::IsMatchingType(m\_peerAddress))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00445}00445\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00446}00446\ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ sent\ "{}}\ <<\ m\_size\ <<\ \textcolor{stringliteral}{"{}\ bytes\ to\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(m\_peerAddress).GetIpv6()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00449}00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(m\_peerAddress).GetPort());}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00450}00450\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00451}00451\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00452}00452\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_sent\ <\ m\_count\ ||\ m\_count\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00453}00453\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00454}00454\ \ \ \ \ \ \ \ \ ScheduleTransmit(m\_interval);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00455}00455\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00456}00456\ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00460}00460\ \textcolor{keywordtype}{void}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00461}00461\ UdpEchoClient::HandleRead(Ptr<Socket>\ socket)}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00462}00462\ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00463}00463\ \ \ \ \ NS\_LOG\_FUNCTION(\textcolor{keyword}{this}\ <<\ socket);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00464}00464\ \ \ \ \ Ptr<Packet>\ packet;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00465}00465\ \ \ \ \ Address\ from;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00466}00466\ \ \ \ \ Address\ localAddress;}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00467}00467\ \ \ \ \ \textcolor{keywordflow}{while}\ ((packet\ =\ socket-\/>RecvFrom(from)))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00468}00468\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00469}00469\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (InetSocketAddress::IsMatchingType(from))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00470}00470\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ received\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00472}00472\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ packet-\/>GetSize()\ <<\ \textcolor{stringliteral}{"{}\ bytes\ from\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00473}00473\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(from).GetIpv4()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00474}00474\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ InetSocketAddress::ConvertFrom(from).GetPort());}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00475}00475\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00476}00476\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (Inet6SocketAddress::IsMatchingType(from))}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00477}00477\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ NS\_LOG\_INFO(\textcolor{stringliteral}{"{}At\ time\ "{}}\ <<\ Simulator::Now().As(Time::S)\ <<\ \textcolor{stringliteral}{"{}\ client\ received\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ packet-\/>GetSize()\ <<\ \textcolor{stringliteral}{"{}\ bytes\ from\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(from).GetIpv6()\ <<\ \textcolor{stringliteral}{"{}\ port\ "{}}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ Inet6SocketAddress::ConvertFrom(from).GetPort());}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00482}00482\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00483}00483\ \ \ \ \ \ \ \ \ socket-\/>GetSockName(localAddress);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00484}00484\ \ \ \ \ \ \ \ \ m\_rxTrace(packet);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00485}00485\ \ \ \ \ \ \ \ \ m\_rxTraceWithAddresses(packet,\ from,\ localAddress);}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00486}00486\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00487}00487\ \}}
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00488}00488\ }
+\DoxyCodeLine{\Hypertarget{udp-echo-client_8cc_source_l00489}00489\ \}\ \textcolor{comment}{//\ Namespace\ ns3}}
 
 \end{DoxyCode}
