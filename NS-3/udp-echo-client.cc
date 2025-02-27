@@ -343,7 +343,7 @@ UdpEchoClient::Send()
 /**
  * @brief Creating a message that will be packet's data.
  * */
-        std::string message = "Hello World!"; /**< This is a message that will be sent as packet's data. */
+        std::string message = "Hello World!"; /**< This is a message that will be sent as packet's data. Counting all of the characters (including the space and the question mark), this will amount to 12 bytes. */
         uint32_t dataSize = message.size(); /**< This returns the size of the message. */
 
 /**
